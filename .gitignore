@@ -1,7 +1,10 @@
 target/
 .js/
 .jvm/
+.bsp
 .idea
+dist
+node_modules
 
 js/yarn.lock
 

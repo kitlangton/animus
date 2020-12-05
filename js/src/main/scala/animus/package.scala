@@ -1,8 +1,10 @@
+import com.raquo.airstream.core.Observable
 import com.raquo.airstream.eventstream.EventStream
+import com.raquo.airstream.features.FlattenStrategy
 import com.raquo.airstream.signal.{Signal, Var}
 
 package object animus {
-  def spring[A](
+  def spring[A, Output](
       $value: Signal[A],
       stiffness: Double = 170,
       damping: Double = 26
@@ -36,6 +38,10 @@ package object animus {
       }
         .startWith(animatable.fromAnim(anim))
     }
+  }
+
+  implicit final class ObservableOps[A](private val value: Observable[A]) extends AnyVal {
+    def px(implicit numeric: Numeric[A]): Observable[String] = value.map(x => s"${x}px")
   }
 
   implicit final class SignalOps[A](private val value: Signal[A]) extends AnyVal {

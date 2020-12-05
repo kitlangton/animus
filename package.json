@@ -1,0 +1,47 @@
+{
+  "name": "animus",
+  "version": "1.0.0",
+  "description": "An FRP animation library for Laminar",
+  "main": "webpack.config.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "build:prod": "webpack --progress --bail",
+    "start": "webpack serve --progress",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kitlangton/animus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kitlangton/animus/issues"
+  },
+  "homepage": "https://github.com/kitlangton/animus#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.0.4",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.3.2",
+    "css-loader": "^5.0.1",
+    "extract-css-chunks-webpack-plugin": "^4.8.0",
+    "html-webpack-plugin": "^4.5.0",
+    "lodash": "^4.17.20",
+    "node-sass": "^5.0.0",
+    "postcss": "^8.1.14",
+    "postcss-import": "^13.0.0",
+    "postcss-loader": "^4.1.0",
+    "postcss-nested": "^5.0.2",
+    "sass": "^1.30.0",
+    "sass-loader": "^10.1.0",
+    "scalajs-friendly-source-map-loader": "^0.1.5",
+    "source-map-loader": "^1.1.3",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.10.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
