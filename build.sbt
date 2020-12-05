@@ -97,11 +97,8 @@ lazy val example = project
 lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(commonSettings)
-//  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-//    requireJsDomEnv in Test := true,
-//    useYarn := true,
     libraryDependencies ++= Seq(
       "com.raquo"           %%% "laminar"       % "0.11.0",
       "com.raquo"           %%% "airstream"     % "0.11.1",

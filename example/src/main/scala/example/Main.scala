@@ -78,7 +78,18 @@ object App {
               padding("0 10px"),
               position.absolute,
               left <-- $left.map { s => s"${s - 180}px" },
-              top <-- $top.map { s => s"${s - 55}px" }
+              top <-- $top.map { s => s"${s - 55}px" },
+              onMountBind { el =>
+                val rect      = el.thisNode.ref.getBoundingClientRect()
+                val $hovering = mousePos.signal.map { case (x, _) => Math.abs(rect.left + (idx * 60) - x) < 60 }
+                transform <-- $hovering.map {
+                  if (_)
+                    (1.5, Random.nextDouble() * 30 - 15)
+                  else
+                    (1.0, Random.nextDouble() * 30 - 15)
+                }.spring
+                  .map { case (d, r) => s"scale($d) rotate(${r}deg)" }
+              }
             )
           }
           .toList,
@@ -89,7 +100,7 @@ object App {
           svg.svg(
             svg.width(window.innerWidth.toString + "px"),
             svg.height(window.innerHeight.toString + "px"),
-            List.fill(300)(magicBall)
+            List.fill(200)(magicBall)
           )
         )
       )
