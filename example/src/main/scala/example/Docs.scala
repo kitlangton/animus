@@ -42,7 +42,7 @@ object Docs {
     )
   }
 
-  def typeText(string: String) = {
+  def typeText(string: String): Div = {
     val openVar = Var(false)
     div(
       onMountCallback { _: MountContext[HtmlElement] =>
@@ -124,15 +124,59 @@ object Docs {
     .spring
     .px
 
-  def view: Div = div(
-    height("100%"),
-    windowEvents.onKeyDown.map(_.key) --> {
-      case "ArrowRight" => sectionVar.update(_ + 1)
-      case "ArrowLeft"  => sectionVar.update(_ - 1)
-    },
-    display.flex,
-    flexDirection.column,
-    flexCenter,
+  def view: Div = {
+    div(
+      height("100%"),
+      windowEvents.onKeyDown.map(_.key) --> {
+        case "ArrowRight" => sectionVar.update(_ + 1)
+        case "ArrowLeft"  => sectionVar.update(_ - 1)
+      },
+      display.flex,
+      flexDirection.column,
+      flexCenter,
+      svg.svg(
+        svg.width("150"),
+        svg.height("150"),
+        svg.g(
+          svg.transform <-- EventStream
+            .periodic(100)
+            .map(i => i * 10.0)
+            .spring(0)
+            .map { d =>
+              s"rotate(${d} 75 75)"
+            },
+          List.tabulate(10)(wheel)
+        )
+      )
+//      h1("Animus", color("red"))
+    )
+  }
+
+  private def wheel(idx: Int) =
+    svg.g(
+      svg.transform("translate(25 25)"),
+      svg.opacity <-- from(0).wait(idx * 50).to(1).run.map(_.toString),
+      svg.path(
+        svg.transform <-- EventStream
+          .periodic(500)
+          .map(i => i * 45.0 + idx * 45.0)
+          .delay(idx * 100)
+          .spring(idx * 45.0)
+          .map { d =>
+            s"rotate(${d} 51 51)"
+          },
+        svg.fill("transparent"),
+        svg.d(
+          "M0 100C0.69577 100 10.385 50 50 50C91.5516 50 100 0 100 0"
+        ),
+        svg.strokeWidth("2"),
+        svg.stroke <-- EventStream.periodic(300).mapTo(Random.nextDouble() * 255).spring(255.0).map { d =>
+          s"rgb($d, 0, 0)"
+        }
+      )
+    )
+
+  def cool = div(
     div(
       display.flex,
       section(

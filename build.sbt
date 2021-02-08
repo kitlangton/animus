@@ -5,8 +5,8 @@ inThisBuild(
     name := "animus",
     normalizedName := "animus",
     organization := "com.kitlangton",
-    scalaVersion := "2.13.3",
-    crossScalaVersions := Seq("2.13.3")
+    scalaVersion := "2.13.4",
+    crossScalaVersions := Seq("2.13.4")
   )
 )
 
@@ -48,6 +48,7 @@ val baseScalacSettings =
     "-language:_" ::
     "-Xfuture" ::
     "-Xlint" ::
+    "-Ymacro-annotations" ::
     "-Yno-adapted-args" ::
     "-Ywarn-value-discard" ::
     "-Ywarn-unused" ::
@@ -90,7 +91,11 @@ lazy val example = project
   .settings(commonSettings)
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    skip in publish := true
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    skip in publish := true,
+    libraryDependencies ++= Seq(
+      "dev.zio" %%% "zio" % "1.0.4-2"
+    )
   )
   .enablePlugins(ScalaJSPlugin)
 
