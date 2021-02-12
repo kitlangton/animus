@@ -3,6 +3,7 @@ package example
 import animus.{ObservableOps, SignalOps}
 import com.raquo.laminar.api.L._
 import example.Docs.flexCenter
+import example.LamUtils.storePosition
 import zio._
 import zio.clock.Clock
 
@@ -46,18 +47,21 @@ case class LayerSelection(layers: List[VisualLayer[_, _]]) {
         flexCenter,
         flexDirection.column,
         div(
-          layer.render.amend(
-            inContext { el =>
-              maxWidth <-- isVisible.signal
-                .map { if (_) el.ref.firstElementChild.scrollWidth.toDouble + 12 else 0.0 }
-                .spring
-                .px
-            }
+          storePosition(
+            layer.name,
+            layer.render.amend(
+              inContext { el =>
+                maxWidth <-- isVisible.signal
+                  .map { if (_) el.ref.firstElementChild.scrollWidth.toDouble + 12 else 0.0 }
+                  .spring
+                  .px
+              }
+            )
           ),
-          opacity <-- isVisible.signal.map {
-            if (_) 1.0 else 0.0
-          }.spring,
-          overflow.hidden,
+//          opacity <-- isVisible.signal.map {
+//            if (_) 1.0 else 0.0
+//          }.spring,
+//          overflow.hidden,
           inContext { el =>
             maxHeight <-- isVisible.signal.map { if (_) el.ref.scrollHeight.toDouble else 0.0 }.spring.px
           },

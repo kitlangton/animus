@@ -4,13 +4,14 @@ import animus._
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L._
 import example.Docs.flexCenter
+import example.LamUtils.storePosition
 import zio.clock.Clock
 import zio._
 import zio.duration._
 
 import scala.util.Random
 
-class VisualLayer[-R, A: Tag](name: String, val inputs: List[String], val outputs: List[String], providing: A) {
+class VisualLayer[-R, A: Tag](val name: String, val inputs: List[String], val outputs: List[String], providing: A) {
 
   trait Service {
     def use: ZIO[Any, Nothing, Unit] = ZIO.sleep(1.second).provideLayer(Clock.live)
@@ -50,7 +51,7 @@ class VisualLayer[-R, A: Tag](name: String, val inputs: List[String], val output
       div("val", opacity(0.5), margin("0px 8px"))
     ),
     td(
-      div(boxStyles(highlightedName), div(name))
+      storePosition(name, div(boxStyles(highlightedName), div(name)))
     ),
     td(
       div(":", opacity(0.5), margin("0px 8px"))
@@ -66,21 +67,22 @@ class VisualLayer[-R, A: Tag](name: String, val inputs: List[String], val output
     )
   )
 
-  def render: Div = div(
-    position.relative,
-    boxStyles(),
-    opacityBinding,
-    div(name, zIndex(2)),
+  def render: Div =
     div(
-      position.absolute,
-      top("0"),
-      left("0"),
-      height("100%"),
-      background("blue"),
-      opacity(0.7),
-      width <-- loadedVar.signal.spring.percent
+      position.relative,
+      boxStyles(),
+      opacityBinding,
+      div(name, zIndex(2)),
+      div(
+        position.absolute,
+        top("0"),
+        left("0"),
+        height("100%"),
+        background("blue"),
+        opacity(0.7),
+        width <-- loadedVar.signal.spring.percent
+      )
     )
-  )
 
   val opacityBinding: Binder[HtmlElement] = opacity <-- loadedVar.signal.map {
     case i if i >= 100 => 1.0

@@ -4,6 +4,7 @@ import animus.{Animatable, DeriveAnimatable, ObservableOps, ResizeObserver, Sign
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import example.Docs.flexCenter
+import example.Main.{Coord, positions}
 import org.scalajs.dom.{document, html}
 import zio._
 import zio.duration.durationInt
@@ -11,13 +12,11 @@ import zio.duration.durationInt
 import scala.scalajs.js.timers.setTimeout
 
 object Main {
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     documentEvents.onDomContentLoaded.foreach { _ =>
       val container = document.body
       render(container, body)
     }(unsafeWindowOwner)
-
-  }
 
   trait App
   val appLayer =
@@ -75,6 +74,33 @@ object Main {
 
   var positions = Var(Map.empty[String, Coord])
 
+  var displayTop = Var(false)
+
+  private val layerSelection = LayerSelection(
+    List(
+      appLayer,
+      userServiceLayer,
+      userRepoLayer,
+      productServiceLayer,
+      productRepoLayer,
+      analyticsLayer,
+      databaseLayer
+    )
+  )
+
+  val body: Div = div(
+    position.relative,
+    height("100vh"),
+    flexCenter,
+    flexDirection.column,
+    layerSelection.allLayers,
+    onDblClick --> { _ =>
+      zio.Runtime.default.unsafeRunAsync_(ZIO.service[App].provideCustomLayer(liveLayer))
+    }
+  )
+}
+
+object LamUtils {
   def storePosition(name: String, element: HtmlElement): ReactiveHtmlElement[html.Div] = {
     val offset  = Var(Coord(0, 0))
     val offset2 = Var(Coord(0, 0))
@@ -90,7 +116,7 @@ object Main {
           left <-- offsets.signal.map(_.x).px,
           top <-- offsets.signal.map(_.y).px,
           inContext { el =>
-            ResizeObserver.resize(el) --> { rect =>
+            EventStream.periodic(500).delay(500) --> { _ =>
               val rect = el.ref.getBoundingClientRect()
               val top  = rect.top
               val left = rect.left
@@ -124,38 +150,4 @@ object Main {
         )
     )
   }
-
-  var displayTop = Var(false)
-
-  private val layerSelection = LayerSelection(
-    List(
-      appLayer,
-      userServiceLayer,
-      userRepoLayer,
-      productServiceLayer,
-      productRepoLayer,
-      analyticsLayer,
-      databaseLayer
-    )
-  )
-
-  val layerList: Div = layerSelection.allLayers
-
-  val body: Div = div(
-    position.relative,
-    height("100vh"),
-    flexCenter,
-    flexDirection.column,
-    layerList,
-    onDblClick --> { _ =>
-      val effect =
-        for {
-          bool <- ZIO.service[App]
-          _    <- ZIO.sleep(1.seconds)
-        } yield ()
-
-      zio.Runtime.default
-        .unsafeRunAsync_(effect.provideCustomLayer(liveLayer).delay(0.seconds))
-    }
-  )
 }
