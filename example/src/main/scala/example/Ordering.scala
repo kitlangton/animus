@@ -46,32 +46,32 @@ class Ordering[A](var underlying: Vector[A]) {
   def toList: List[A] = underlying.toList
 }
 
-object OrderingExample {
-
-  def main(args: Array[String]): Unit = {
-    val start =
-      """
-CREATE TABLE usc.rectangle (
-  id     UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  width  FLOAT8 NOT NULL,
-  height FLOAT8 NOT NULL
-  height FLOAT8 NOT NULL,
-  roundness FLOAT8
-);
-""".trim.split("\n").toList
-
-    val end =
-      """
-CREATE TABLE usc.rectangle (
-  id     UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  width  FLOAT8 NOT NULL,
-  height FLOAT8 NOT NULL
-);
-""".trim.split("\n").toList
-
-    val ordering = new Ordering[String](Vector.empty[String])
-    ordering.addValues(start)
-    ordering.addValues(end)
-    println(ordering.toList.mkString("\n"))
-  }
-}
+//object OrderingExample {
+//
+//  def main(args: Array[String]): Unit = {
+//    val start =
+//      """
+//CREATE TABLE usc.rectangle (
+//  id     UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+//  width  FLOAT8 NOT NULL,
+//  height FLOAT8 NOT NULL
+//  height FLOAT8 NOT NULL,
+//  roundness FLOAT8
+//);
+//""".trim.split("\n").toList
+//
+//    val end =
+//      """
+//CREATE TABLE usc.rectangle (
+//  id     UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+//  width  FLOAT8 NOT NULL,
+//  height FLOAT8 NOT NULL
+//);
+//""".trim.split("\n").toList
+//
+//    val ordering = new Ordering[String](Vector.empty[String])
+//    ordering.addValues(start)
+//    ordering.addValues(end)
+//    println(ordering.toList.mkString("\n"))
+//  }
+//}

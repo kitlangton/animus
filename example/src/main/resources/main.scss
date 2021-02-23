@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Texturina:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+@import "highlight.js/styles/atom-one-dark.css";
 
 
 html {
@@ -9,13 +10,26 @@ html {
 }
 
 body {
-    font-family: 'Helvetica', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 28px;
     margin: 0px;
     padding: 0px;
     background: black;
     color: white;
     height: 100%;
     box-sizing: border-box;
+}
+
+code {
+    font-size: 18px;
+}
+
+.code {
+    background: rgba(20,20,40,0.6);
+}
+
+pre {
+margin: 12px 0px;
 }
 
 h1 {

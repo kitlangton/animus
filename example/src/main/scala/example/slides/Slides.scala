@@ -1,8 +1,13 @@
 package example.slides
 
+import animus.{ObservableOps, SignalOps}
+import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L._
 import example.{Transitions, styles}
-import org.scalajs.dom.document
+import org.scalajs.dom.{document, window}
+import zio.json._
+
+import scala.util.Try
 
 case class SlidesState(currentSlide: Int, sections: Map[Int, Int] = Map.empty) {
   def sectionForSlide(index: Int): Int = sections.getOrElse(index, 0)
@@ -25,6 +30,13 @@ case class SlidesState(currentSlide: Int, sections: Map[Int, Int] = Map.empty) {
 
 object SlidesState {
   def empty: SlidesState = SlidesState(0)
+
+  implicit val intFieldEncoder: JsonFieldEncoder[Int] = JsonFieldEncoder.string.contramap((int: Int) => int.toString)
+  implicit val intFieldDecoder: JsonFieldDecoder[Int] = JsonFieldDecoder.string.map(_.toInt)
+  implicit val intCodec: JsonEncoder[Int]             = JsonEncoder.int
+  implicit val intDec: JsonDecoder[Int]               = JsonDecoder.int
+  implicit val codec: JsonEncoder[SlidesState]        = DeriveJsonEncoder.gen[SlidesState]
+  implicit val dec: JsonDecoder[SlidesState]          = DeriveJsonDecoder.gen[SlidesState]
 }
 
 object Slides extends Owner {
@@ -37,7 +49,17 @@ object Slides extends Owner {
   lazy val $currentSection: Signal[Int] = $slidesState.map(_.currentSection)
 
   def view: Div = {
+    val state = window.localStorage.getItem("state")
+    Try {
+      state.fromJson[SlidesState].foreach { state =>
+        slidesStateVar.set(state)
+      }
+    }
+
     div(
+      $slidesState --> { state =>
+        window.localStorage.setItem("state", state.toJson)
+      },
       windowEvents.onKeyDown.map(_.key) --> Observer[String] {
         case "f"          => val _ = document.body.requestFullscreen()
         case "ArrowRight" => slidesStateVar.update(_.nextSlide)
@@ -64,7 +86,9 @@ object Slides extends Owner {
       marginTop := "40px",
       styles.fixedFullScreen,
       renderSlides(
-        //
+        Cool,
+        FreeStuff,
+        LiveCodeSlide
       )
     )
 
@@ -106,6 +130,9 @@ object Slides extends Owner {
 
   def slideOpen($isOpen: Signal[Boolean], dynamicHeight: Boolean = false)(content: => HtmlElement): HtmlElement =
     div(child.maybe <-- Transitions.slide($isOpen, dynamicHeight)(content))
+
+  def slideOpenWidth($isOpen: Signal[Boolean], dynamicWidth: Boolean = false)(content: => HtmlElement): HtmlElement =
+    div(display.inlineFlex, child.maybe <-- Transitions.slideWidth($isOpen, dynamicWidth)(content))
 
   private def renderSlide(number: Int, content: HtmlElement) = {
     val $isActive = $currentSlide.map(_ == number)

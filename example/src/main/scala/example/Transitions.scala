@@ -43,6 +43,11 @@ object Transitions {
   ): Signal[Option[HtmlElement]] =
     slideOption($isOpen.map { b => Option.when(b)(b) }, dynamicHeight) { _ => content }
 
+  def slideWidth($isOpen: Signal[Boolean], dynamicWidth: Boolean = false)(
+      content: => HtmlElement
+  ): Signal[Option[HtmlElement]] =
+    slideOptionWidth($isOpen.map { b => Option.when(b)(b) }, dynamicWidth) { _ => content }
+
   def transitionWidth($isVisible: Signal[Boolean]): Mod[HtmlElement] = Seq(
     overflowX.hidden,
     onMountBind { (el: MountContext[Base]) =>
@@ -107,6 +112,31 @@ object Transitions {
               if (b) {
                 if (dynamicHeight) observer
                 else Val(el.thisNode.ref.scrollHeight.toDouble)
+              } else Val(0.0)
+            }.spring.px
+          }
+        )
+      }
+    )(render)
+
+  def slideOptionWidth[A]($signal: Signal[Option[A]], dynamicWidth: Boolean = false)(
+      render: Signal[A] => HtmlElement
+  ): Signal[Option[HtmlElement]] =
+    transitionOption(
+      $signal,
+      { $isVisible =>
+        Seq(
+          overflow.hidden,
+          transitionOpacity($isVisible),
+          onMountBind { (el: MountContext[Base]) =>
+            lazy val observer = ResizeObserver
+              .resize(el.thisNode.ref.firstElementChild)
+              .mapTo(el.thisNode.ref.scrollWidth.toDouble)
+              .toSignal(0.0)
+            maxWidth <-- $isVisible.flatMap { b =>
+              if (b) {
+                if (dynamicWidth) observer
+                else Val(el.thisNode.ref.scrollWidth.toDouble)
               } else Val(0.0)
             }.spring.px
           }
