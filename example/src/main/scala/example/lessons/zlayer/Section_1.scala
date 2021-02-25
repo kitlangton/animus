@@ -3,7 +3,7 @@ package example.lessons.zlayer
 import animus.SignalOps
 import com.raquo.laminar.api.L._
 import example.Main.{boxStyles, boxStylesVert, codeBlock, codeBlockSignal}
-import example.slides.Slides.slideOpen
+import example.slides.Slides.{slideOpen, slideOpenWidth}
 import example.{Section, Timeline, TimelineEntry}
 
 sealed trait Textual { self =>
@@ -14,12 +14,12 @@ sealed trait Textual { self =>
     case Textual.Bold(content)       => content.size
   }
 
-  def render($step: Signal[Int], start: Int = 0): HtmlElement = self match {
+  def render($step: Signal[Int], $debug: Signal[Boolean] = Val(false), start: Int = 0): HtmlElement = self match {
     case Textual.Group(vector) =>
       var start0 = start
       div(
         vector.map { textual =>
-          val result = textual.render($step, start0)
+          val result = textual.render($step, $debug, start0)
           start0 += textual.size
           result
         }
@@ -30,13 +30,13 @@ sealed trait Textual { self =>
         padding("12px"),
         borderTop("1px solid #555"),
         vector.map { textual =>
-          val result = textual.render($step, start0)
+          val result = textual.render($step, $debug, start0)
           start0 += textual.size
           result
         }
       )
     case Textual.Bold(content) =>
-      content.render($step, start).amend(fontWeight.bold)
+      content.render($step, $debug, start).amend(fontWeight.bold)
     case Textual.Text(string) =>
       val indexedWords = string.split(" ").zipWithIndex
       println(indexedWords.map(_._1).toList)
@@ -44,7 +44,16 @@ sealed trait Textual { self =>
         indexedWords.map { case (str, idx) =>
           val ending = if (idx == indexedWords.lastOption.map(_._2).getOrElse(0)) "" else " "
           span(
-            str + ending,
+            str,
+            slideOpenWidth($debug) {
+              sup(
+                opacity(0.7),
+//                fontSize("12px"),
+                display.inlineFlex,
+                (idx + start + 1).toString
+              )
+            },
+            ending,
             opacity <-- $step.map { i => if (idx < i - start) 1.0 else 0.3 }.spring
           )
         }.toList

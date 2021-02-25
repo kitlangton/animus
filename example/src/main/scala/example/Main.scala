@@ -244,10 +244,15 @@ case class TimelineEntry(time: Double, step: Int)
 case class Timeline(entries: Vector[TimelineEntry]) {
   def appended(time: Double, step: Int): Timeline =
     copy(entries = entries.appended(TimelineEntry(time, step)))
+
+  def copyableString: String =
+    s"Timeline.fromTimes(${entries.map(_.time).mkString(", ")})"
 }
 
 object Timeline {
   def empty: Timeline = Timeline(Vector.empty)
+  def fromTimes(times: Double*): Timeline =
+    Timeline(times.zipWithIndex.map { case (t, i) => TimelineEntry(t, i + 1) }.toVector)
 }
 
 //case class AudioSegment(audio: String, text: String, timeline: Timeline)

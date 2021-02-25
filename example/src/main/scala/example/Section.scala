@@ -7,6 +7,7 @@ import example.Main.{animateHeight, boxStyles, boxStylesVert, glowingOverlay, te
 import example.lessons.zlayer.Textual
 import example.slides.Slides.slideOpen
 import org.scalajs.dom
+import org.scalajs.dom.{document, window}
 
 import scala.scalajs.js.timers.setTimeout
 
@@ -17,141 +18,25 @@ trait Section extends Owner {
   val timeline: Timeline
   def render($step: Signal[Int]): HtmlElement
 
-  def debug: Div = {
-    val timelineVar = Var(Timeline.empty)
-    val unplayed    = Var(true)
-    val isPlaying   = Var(false)
-    val stepVar     = Var(0)
-    val debugging   = Var(false)
-
-    val audioPlayer = {
-      val player = audio().ref
-      player
-    }
-
-    audioPlayer.src = s"audio/$audioFileName.mp3"
-    audioPlayer.load()
-
-    val duration = Var(0.0)
-//    val words    = text.split(" ").toVector
-
-//    audioPlayer.onloadeddata = { _ =>
-//      val dur = audioPlayer.duration
-//      duration.set(dur)
-//
-//      val timePerWord = dur / words.length.toDouble
-//
-//      val entries = (0 to words.length).map { i => TimelineEntry(timePerWord * i, i + 1) }.toVector
-//      timelineVar.set(Timeline(entries))
-//    }
-
-    audioPlayer.ontimeupdate = { _ =>
-      if (!debugging.now()) {
-        val time = audioPlayer.currentTime
-        timelineVar.now().entries.findLast(_.time < time + 0.3).map(_.step).foreach { step => stepVar.set(step) }
-      }
-    }
-
-    def play(time: Double = 0.0) = {
-      unplayed.set(false)
-      audioPlayer.currentTime = time
-      audioPlayer.play()
-      isPlaying.set(true)
-    }
-
-    div(
-      windowEvents.onKeyDown --> { ev =>
-        if (ev.key == "ArrowDown") {
-          if (audioPlayer.paused) {
-            debugging.set(true)
-            timelineVar.set(Timeline.empty)
-            stepVar.set(0)
-            play()
-          } else {
-            val nextStep = stepVar.now() + 1
-            timelineVar.update(_.appended(audioPlayer.currentTime, nextStep))
-            stepVar.set(nextStep)
-          }
-        }
-      },
-      div(
-        borderLeft("1px solid #555"),
-        borderRight("1px solid #555"),
-        startButton(
-          1,
-          unplayed.signal,
-          isPlaying.signal,
-          time => {
-            debugging.set(false)
-
-            play(time)
-          },
-          stepVar.signal,
-          Val(true)
-        ),
-        render(stepVar.signal)
-          .amend(
-            marginLeft("-1px"),
-            marginRight("-1px")
-          )
-      ),
-      child <-- duration.signal.map { duration =>
-        div(
-          position.relative,
-          height(s"${duration * 20}px"),
-          width("1px"),
-          borderLeft("1px solid gray")
-//          words.zipWithIndex.map { case (word, idx) =>
-//            div(
-//              fontSize("8px"),
-//              word,
-//              position.absolute,
-//              top <-- timelineVar.signal.map { timeline =>
-//                timeline.entries
-//                  .find(_.step == idx)
-//                  .map { entry =>
-//                    entry.time * 20
-//                  }
-//                  .getOrElse(0.0)
-//              }.px
-//            )
-//          }
-        )
-      },
-      pre(
-        fontSize("10px"),
-        child.text <-- timelineVar.signal.map(_.toString)
-      )
-    )
-  }
-
   def mainRender(
       sectionNumber: Int,
       $isUnplayed: Signal[Boolean],
       $isPlaying: Signal[Boolean],
       handlePlay: Double => Unit,
       $step: Signal[Int],
+      $currentTime: Signal[Double],
       $debug: Signal[Boolean]
-  ): HtmlElement = {
-    val debugMode = Var(false)
-
+  ): HtmlElement =
     div(
-      child <-- debugMode.signal.map {
-        if (_) debug
-        else
-          div(
-            borderLeft("1px solid #555"),
-            borderRight("1px solid #555"),
-            startButton(sectionNumber, $isUnplayed, $isPlaying, handlePlay, $step, $debug),
-            render($step)
-              .amend(
-                marginLeft("-1px"),
-                marginRight("-1px")
-              )
-          )
-      }
+      borderLeft("1px solid #555"),
+      borderRight("1px solid #555"),
+      startButton(sectionNumber, $isUnplayed, $isPlaying, handlePlay, $step, $currentTime, $debug),
+      render($step)
+        .amend(
+          marginLeft("-1px"),
+          marginRight("-1px")
+        )
     )
-  }
 
   def startButton(
       sectionNumber: Int,
@@ -159,27 +44,49 @@ trait Section extends Owner {
       $isPlaying: Signal[Boolean],
       handlePlay: Double => Unit,
       $step: Signal[Int],
+      $currentTime: Signal[Double],
       $debug: Signal[Boolean]
   ): Div = {
     val isHovering = Var(false)
     val appeared   = Var(false)
 
+    val timelineVar = Var(Option.empty[Timeline])
+
+    val $step2: Signal[Int] = timelineVar.signal.combineWith($debug).flatMap {
+      case (Some(timeline), true) =>
+        $currentTime.map { time =>
+          timeline.entries.findLast(_.time <= time + 0.3).map(_.step).getOrElse(0)
+        }
+      case _ => $step
+    }
+
     setTimeout(300) {
       appeared.set(true)
     }
 
+    val actionBus = new EventBus[Unit]
+
     div(
-      cls("text-block"),
-      cls.toggle("is-playing") <-- $isPlaying.signal,
-      cls.toggle("played") <-- $isPlaying.signal.combineWith($isUnplayed).map { case (b1, b2) => !(b1 || b2) },
+      windowEvents.onKeyDown.filter(e => e.key == "u" && !e.ctrlKey) --> { _ => actionBus.writer.onNext(()) },
+      windowEvents.onKeyDown.filter(e => e.key == "u" && e.ctrlKey) --> { _ => timelineVar.set(None) },
+      actionBus.events.withCurrentValueOf($currentTime.combineWith($debug)) --> {
+        case (_, (time, true)) =>
+          if (timelineVar.now().isEmpty) {
+            timelineVar.set(Some(Timeline.empty))
+          } else {
+            timelineVar.update(_.map(tl => tl.appended(time, tl.entries.length + 1)))
+          }
+        case _ => ()
+      },
       position.relative,
       div(
         boxStylesVert,
-//        onClick --> { (event) =>
-//          handlePlay(0.0)
-//        },
+        onClick --> { _ =>
+          handlePlay(0.0)
+        },
         onMouseEnter.mapTo(true) --> isHovering.writer,
         onMouseLeave.mapTo(false) --> isHovering.writer,
+        cursor <-- $isUnplayed.map { if (_) "pointer" else "default" },
         overflow.hidden,
         background <-- $isUnplayed.combineWith(appeared.signal)
           .map {
@@ -207,6 +114,20 @@ trait Section extends Owner {
                 fontWeight.bold,
                 child.text <-- $step.map(_.toString)
               )
+            ),
+            div(
+              display.flex,
+              marginLeft("12px"),
+              cursor.pointer,
+              color("red"),
+              s"• RECORDING TIMELINE",
+              onClick --> { event =>
+                event.stopPropagation()
+                window.alert(timelineVar.now().getOrElse(Timeline.empty).copyableString)
+              },
+              opacity <-- $debug.combineWith(timelineVar.signal).map { case (d, t) =>
+                if (d && t.isDefined) 1.0 else 0.0
+              }.spring
             )
           ),
           div(
@@ -238,61 +159,62 @@ trait Section extends Owner {
           )
         )
       ),
-      slideOpen($debug) {
-        var elWidth: Double     = 0.0
-        var pxPerSecond: Double = 0.0
-        div(
-          boxStyles,
-          zIndex(5),
-          background("black"),
-          position.relative,
-          overflowX.scroll,
-          onMountBind { el =>
-            elWidth = el.thisNode.ref.getBoundingClientRect().width
-            val lastPosition: Double = timeline.entries.lastOption.map(_.time).getOrElse(5)
-            pxPerSecond = elWidth / lastPosition
-            val start = el.thisNode.ref.getBoundingClientRect().left
-            onClick --> { event =>
-              println(event.clientX, start)
-              handlePlay((event.clientX - start).toDouble / pxPerSecond)
-            }
-          },
-          div(
-            position.absolute,
-            top("0"),
-            bottom("0"),
-            left("0"),
-            background("rgba(100,100,100,0.5)"),
-            width <-- $step.map(step =>
-              timeline.entries.find(_.step == step).map(_.time).getOrElse(10.0) * pxPerSecond
-            ).spring.px
-          ),
-          onMountInsert { el =>
-            timeline.entries.map { entry =>
-              div(
-                position.absolute,
-                left(s"${entry.time * pxPerSecond}px"),
-                width("5px"),
-                height("5px"),
-                borderRadius("5px"),
-                background("white"),
-                opacity <-- $step.map { i =>
-                  if (entry.step <= i) 1.0 else 0.4
-                }.spring
-              )
-            }
-          }
-        )
-      },
-      slideOpen($isUnplayed.map(!_)) {
+//      slideOpen($debug) {
+//        var elWidth: Double     = 0.0
+//        var pxPerSecond: Double = 0.0
+//
+//        var duration = 0.0
+//        val player   = audio(src(s"audio/${audioFileName}.mp3")).ref
+//        player.load()
+//        player.onloadeddata = { _ =>
+//          duration = player.duration
+//          pxPerSecond = elWidth / duration
+//          println(duration)
+//        }
+//
+//        div(
+//          boxStyles,
+//          zIndex(5),
+//          background("black"),
+//          position.relative,
+//          onMountCallback { el =>
+//            elWidth = el.thisNode.ref.getBoundingClientRect().width
+//            pxPerSecond = elWidth / duration
+//          },
+////          div(
+////            position.absolute,
+////            top("0"),
+////            bottom("0"),
+////            width("1px"),
+////            background("rgba(100,100,100,1)"),
+////            left <-- $currentTime.map { _ * pxPerSecond }.px
+////          ),
+//          children <-- timelineVar.signal.map { _.getOrElse(timeline).entries }.split(identity) { (key, entry, _) =>
+//            div(
+//              onClick --> { _ =>
+//                handlePlay(entry.time - 0.5)
+//              },
+//              position.absolute,
+//              left(s"${entry.time * pxPerSecond}px"),
+//              top("0px"),
+//              width("1px"),
+//              height("24px"),
+//              background("white")
+//            )
+//          }
+//        )
+//      },
+      slideOpen($isUnplayed.map(!_), true) {
         div(
           onClick --> { event =>
             handlePlay(0.0)
           },
+          cls("text-block"),
+          cls.toggle("is-playing") <-- $isPlaying.signal,
           zIndex(2),
           position.relative,
           glowingOverlay($isUnplayed),
-          text.render($step)
+          text.render($step2, $debug.combineWith(timelineVar.signal.map(_.isEmpty)).map { case (b, b2) => b && b2 })
         )
       }
     )

@@ -7,19 +7,52 @@ import org.scalajs.dom.html.Audio
 import org.scalajs.dom.raw.AudioContext
 import org.scalajs.dom.{document, window}
 
+import scala.scalajs.js.timers.setTimeout
+
 class MasterSection(sections: Vector[Section]) {
   private val debugVar: Var[Boolean]                 = Var(true)
   private val currentSectionVar: Var[Int]            = Var(0)
+  private val currentTimeVar: Var[Double]            = Var(0.0)
   private val sectionStepMap: Var[Map[Section, Int]] = Var(Map.empty[Section, Int].withDefaultValue(-1))
 
   private val $visibleSections: Signal[Vector[Section]] =
     currentSectionVar.signal.map { n => sections.take(n + 1) }
+
+  var lastPreviewing = Option.empty[Int]
 
   def keyDownEvents = windowEvents.onKeyDown --> { event =>
     event.key match {
       case "‡"          => debugVar.update(!_)
       case "ArrowRight" => currentSectionVar.update(_ + 1)
       case "ArrowLeft"  => currentSectionVar.update(_ - 1)
+      case "j"          =>
+      case "k"          =>
+      case "p" if debugVar.now() =>
+        println("PRE", lastPreviewing)
+        lastPreviewing match {
+          case Some(value) =>
+            lastPreviewing = None
+            val section = sections(currentSectionVar.now())
+            audioPlayer.pause()
+            setTimeout(10) {
+              sectionStepMap.update(_.updated(section, value))
+            }
+          case None =>
+            val section = sections(currentSectionVar.now())
+            val step    = sectionStepMap.now()(section)
+            lastPreviewing = Some(step)
+            section.timeline.entries.find(_.step == step).map(_.time).foreach { time =>
+              handlePlay(section, time - 0.3)
+            }
+        }
+      case "h" if debugVar.now() =>
+        lastPreviewing = None
+        val section = sections(currentSectionVar.now())
+        sectionStepMap.update(_.updatedWith(section)(_.map(_ - 1)))
+      case "l" if debugVar.now() =>
+        lastPreviewing = None
+        val section = sections(currentSectionVar.now())
+        sectionStepMap.update(_.updatedWith(section)(_.map(_ + 1)))
       case " " =>
         event.preventDefault()
         if (playingSection.now().isEmpty)
@@ -51,15 +84,16 @@ class MasterSection(sections: Vector[Section]) {
     sectionStepMap.update(_.updated(section, 0))
 
     audioPlayer.onended = { _ =>
-//      Sounds.playPing()
       playingSection.set(None)
-      if (audioPlayer.currentTime >= audioPlayer.duration) {
+      if (audioPlayer.currentTime >= audioPlayer.duration && !debugVar.now()) {
         onSectionFinish(section)
       }
     }
 
     audioPlayer.ontimeupdate = { _ =>
       val time = audioPlayer.currentTime
+      currentTimeVar.set(time)
+
       section.timeline.entries
         .findLast(_.time < time + 0.3)
         .map(_.step)
@@ -122,6 +156,7 @@ class MasterSection(sections: Vector[Section]) {
     div(
       RAFStream --> { _ =>
         scrollTarget.set(document.body.scrollHeight)
+        currentTimeVar.set(audioPlayer.currentTime)
       },
       scrollTarget.signal --> { scrollY =>
         window.scrollTo(0, scrollY.toInt)
@@ -144,7 +179,10 @@ class MasterSection(sections: Vector[Section]) {
                   $isPlaying = playingSection.signal.map(_.contains(section)),
                   handlePlay = time => handlePlay(section, time),
                   $step = sectionStepMap.signal.map(_(section)),
-                  $debug = debugVar.signal
+                  $currentTime = currentTimeVar.signal,
+                  $debug = debugVar.signal.combineWith(currentSectionVar.signal).map { case (a, b) =>
+                    a && b == sections.indexOf(section)
+                  }
                 ),
               overflowY.hidden,
               marginTop <-- $status.combineWith($isUnplayed)
