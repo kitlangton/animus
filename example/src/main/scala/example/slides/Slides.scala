@@ -141,7 +141,7 @@ object Slides extends Owner {
       position.absolute,
       left := "50%",
       div(
-        width := "800px",
+        width := "600px",
         zIndex <-- $isActive.map { b => if (b) 100 else 0 },
         transform := "translateX(-50%)",
         position.relative,

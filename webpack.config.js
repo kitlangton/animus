@@ -117,8 +117,14 @@ function common(variables, mode) {
         minify: false,
         inject: 'head',
         config: variables
-      })
-
+      }),
+      new CopyWebpackPlugin({
+      patterns: [{
+          from: './example/src/main/resources/audio',
+          to: 'audio'
+        },
+       ]
+    })
 //      new CopyWebpackPlugin([{
 //          from: './modules/frontend/src/static/images',
 //          to: 'images'

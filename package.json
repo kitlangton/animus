@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "highlight.js": "^10.6.0",
-    "pixi.js": "^5.3.7"
+    "pixi.js": "^5.3.7",
+    "wavesurfer.js": "^4.5.0"
   }
 }

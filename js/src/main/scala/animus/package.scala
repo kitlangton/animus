@@ -102,15 +102,18 @@ package object animus {
   }
 
   implicit final class ObservableOps[A](private val value: Observable[A]) extends AnyVal {
-    def px(implicit numeric: Numeric[A]): Observable[String]      = value.map(x => s"${x}px")
     def percent(implicit numeric: Numeric[A]): Observable[String] = value.map(x => s"${x}%")
   }
 
   implicit final class SignalOps[A](private val value: Signal[A]) extends AnyVal {
+    def px(implicit numeric: Numeric[A]): Signal[String]      = value.map(x => s"${x}px")
     def spring(implicit animatable: Animatable[A]): Signal[A] = animus.spring(value)
+    def spring(stiffness: Double, damping: Double)(implicit animatable: Animatable[A]): Signal[A] =
+      animus.spring(value, stiffness, damping)
   }
 
   implicit final class EventStreamOps[A](private val value: EventStream[A]) extends AnyVal {
+    def px(implicit numeric: Numeric[A]): EventStream[String]                = value.map(x => s"${x}px")
     def spring(initial: => A)(implicit animatable: Animatable[A]): Signal[A] = animus.spring(value.startWith(initial))
   }
 

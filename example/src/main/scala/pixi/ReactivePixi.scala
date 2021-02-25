@@ -397,9 +397,9 @@ object Props {
 
   val mask: ReactivePixiProp[PIXI.Container, PIXI.Container] = _.mask = _
 
-  // Text
+  // Paragraph
   val text: ReactivePixiProp[PIXI.Text, String] = _.text = _
-  //  val fontSize: ReactivePixiProp[PIXI.Text, Double]  = _. = _
+  //  val fontSize: ReactivePixiProp[PIXI.Paragraph, Double]  = _. = _
 
   // Sprite
   val buttonMode: ReactivePixiProp[PIXI.Sprite, Boolean]     = _.buttonMode = _
