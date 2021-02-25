@@ -20,13 +20,15 @@ class MasterSection(sections: Vector[Section]) {
 
   var lastPreviewing = Option.empty[Int]
 
+  var intBuffer = Var(Option.empty[Int])
+
   def keyDownEvents = windowEvents.onKeyDown --> { event =>
     event.key match {
-      case "‡"          => debugVar.update(!_)
-      case "ArrowRight" => currentSectionVar.update(_ + 1)
-      case "ArrowLeft"  => currentSectionVar.update(_ - 1)
-      case "j"          =>
-      case "k"          =>
+      case "‡"                            => debugVar.update(!_)
+      case "ArrowRight" if debugVar.now() => currentSectionVar.update(_ + 1)
+      case "ArrowLeft" if debugVar.now()  => currentSectionVar.update(_ - 1)
+      case "j"                            =>
+      case "k"                            =>
       case "p" if debugVar.now() =>
         println("PRE", lastPreviewing)
         lastPreviewing match {
@@ -45,14 +47,25 @@ class MasterSection(sections: Vector[Section]) {
               handlePlay(section, time - 0.3)
             }
         }
+      case k if k.headOption.exists(_.isDigit) && debugVar.now() =>
+        intBuffer.update {
+          case Some(k0) => Some(s"${k0}${k}".toInt)
+          case None     => Some(k.toInt)
+        }
+      case "g" if debugVar.now() =>
+        intBuffer.now().foreach { destination =>
+          val section = sections(currentSectionVar.now())
+          sectionStepMap.update(_.updated(section, destination))
+        }
+        intBuffer.set(None)
       case "h" if debugVar.now() =>
-        lastPreviewing = None
-        val section = sections(currentSectionVar.now())
-        sectionStepMap.update(_.updatedWith(section)(_.map(_ - 1)))
+        shift(-1)
       case "l" if debugVar.now() =>
-        lastPreviewing = None
-        val section = sections(currentSectionVar.now())
-        sectionStepMap.update(_.updatedWith(section)(_.map(_ + 1)))
+        shift(1)
+      case "H" if debugVar.now() =>
+        shift(-5)
+      case "L" if debugVar.now() =>
+        shift(5)
       case " " =>
         event.preventDefault()
         if (playingSection.now().isEmpty)
@@ -63,6 +76,12 @@ class MasterSection(sections: Vector[Section]) {
         }
       case _ => ()
     }
+  }
+
+  private def shift(amount: Int): Unit = {
+    lastPreviewing = None
+    val section = sections(currentSectionVar.now())
+    sectionStepMap.update(_.updatedWith(section)(_.map(_ + amount)))
   }
 
   def onSectionFinish(section: Section): Unit = {
@@ -85,6 +104,7 @@ class MasterSection(sections: Vector[Section]) {
 
     audioPlayer.onended = { _ =>
       playingSection.set(None)
+      lastPreviewing = None
       if (audioPlayer.currentTime >= audioPlayer.duration && !debugVar.now()) {
         onSectionFinish(section)
       }
