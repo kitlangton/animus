@@ -1,13 +1,13 @@
 package animus
 
-import com.raquo.airstream.signal.{Signal, Var}
+import com.raquo.airstream.core.Signal
+import com.raquo.airstream.state.Var
 import com.raquo.laminar.api.L._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
 import scala.scalajs.js.timers.SetTimeoutHandle
-import scala.util.Try
 
 sealed trait TransitionStatus { self =>
   def isActive: Boolean = self == TransitionStatus.Active

@@ -1,7 +1,5 @@
-import com.raquo.airstream.core.Observable
-import com.raquo.airstream.eventstream.EventStream
-import com.raquo.airstream.features.FlattenStrategy
-import com.raquo.airstream.signal.{Signal, Var}
+import com.raquo.airstream.core.{EventStream, Observable, Signal}
+import com.raquo.airstream.state.Var
 
 import scala.scalajs.js.timers.setTimeout
 

@@ -1,6 +1,6 @@
 package animus
 
-import com.raquo.airstream.eventstream.EventStream
+import com.raquo.airstream.core.EventStream
 import org.scalajs.dom
 
 object RAFStream extends EventStream[Double] {

@@ -106,8 +106,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq(
-      "com.raquo"           %%% "laminar"       % "0.11.0",
-      "com.raquo"           %%% "airstream"     % "0.11.1",
+      "com.raquo"           %%% "laminar"       % "0.12.1",
       "com.propensive"      %%% "magnolia"      % "0.17.0",
       scalaOrganization.value % "scala-reflect" % scalaVersion.value
     )
