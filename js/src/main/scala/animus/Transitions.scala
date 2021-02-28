@@ -67,7 +67,6 @@ object Transitions {
 
     val allKeys = mutable.Set.empty[Key]
 
-    type StatusList = Seq[(A, TransitionStatus)]
     val timerMap = mutable.Map.empty[Key, SetTimeoutHandle]
 
     def cancelTimer(key: Key): Unit =
