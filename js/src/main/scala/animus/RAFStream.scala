@@ -8,8 +8,10 @@ object RAFStream extends EventStream[Double] {
 
   var started = false
 
-  def tick(): Int =
-    dom.window.requestAnimationFrame(step)
+  def tick(): Unit = {
+    dom.window.requestAnimationFrame(step(_))
+    ()
+  }
 
   def step(t: Double): Unit = {
     fireValue(t, null)

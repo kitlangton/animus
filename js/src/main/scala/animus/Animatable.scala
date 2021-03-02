@@ -2,8 +2,6 @@ package animus
 
 import magnolia._
 
-import scala.language.experimental.macros
-
 trait Animatable[A] {
   type Anim
 
