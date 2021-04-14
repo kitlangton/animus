@@ -5,23 +5,7 @@ import com.raquo.airstream.common.SingleParentObservable
 import com.raquo.airstream.core.{Signal, Transaction}
 import org.scalajs.dom
 
-import scala.scalajs.js
 import scala.util.Try
-
-object RequestAnimationFrame {
-  val tickers: js.Array[Double => Unit] = scalajs.js.Array()
-
-  def tick(): Unit = dom.window.requestAnimationFrame(step)
-
-  val step: scalajs.js.Function1[Double, Unit] = (t: Double) => {
-    tickers.foreach(_.apply(t))
-    tick()
-  }
-
-  def add(ticker: Double => Unit): Unit = tickers += ticker
-
-  tick()
-}
 
 class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
     extends Signal[A]
@@ -40,6 +24,16 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
   private var anim: animatable.Anim = _
   private var animating             = false
 
+  def tick(): Unit = {
+    val _ = dom.window.requestAnimationFrame(step)
+  }
+
+  val step: scalajs.js.Function1[Double, Unit] = (t: Double) => {
+    animatable.tick(anim, t)
+    fireQuick(animatable.fromAnim(anim))
+    tick()
+  }
+
   def fireQuick(value: A): Unit = {
     externalObservers.foreach { observer =>
       observer.onNext(value)
@@ -54,10 +48,7 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
     animatable.update(anim, nextValue)
     if (!animating) {
       animating = true
-      RequestAnimationFrame.add { t =>
-        animatable.tick(anim, t)
-        fireQuick(animatable.fromAnim(anim))
-      }
+      tick()
     }
   }
 
