@@ -1,42 +1,24 @@
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 inThisBuild(
-  Seq(
+  List(
     name := "animus",
     normalizedName := "animus",
     organization := "com.kitlangton",
-    scalaVersion := "2.13.4",
-    crossScalaVersions := Seq("2.13.4")
+    scalaVersion := "2.13.5",
+    crossScalaVersions := Seq("2.13.5"),
+    organization := "io.github.kitlangton",
+    homepage := Some(url("https://github.com/kitlangton/animus")),
+    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer(
+        "kitlangton",
+        "Kit Langton",
+        "kit.langton@gmail.com",
+        url("https://github.com/kitlangton")
+      )
+    )
   )
-)
-
-releaseCrossBuild := true
-
-lazy val releaseSettings = Seq(
-  homepage := Some(url("https://github.com/kitlangton/animus")),
-  licenses += ("MIT", url("https://github.com/kitlangton/animus/blob/master/LICENSE.md")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/kitlangton/animus"),
-      "scm:git@github.com/kitlangton/animus.git"
-    )
-  ),
-  developers := List(
-    Developer(
-      id = "kitlangton",
-      name = "Kit Langton",
-      email = "kit.langton@gmail.com",
-      url = url("https://kitlangton.com")
-    )
-  ),
-  sonatypeProfileName := "com.kitlangton",
-  publishMavenStyle := true,
-  publishArtifact in Test := false,
-  publishTo := sonatypePublishTo.value,
-  releaseCrossBuild := true,
-  pomIncludeRepository := { _ => false },
-  useGpg := false,
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value
 )
 
 val baseScalacSettings =
@@ -71,11 +53,7 @@ lazy val scalacSettings = Seq(
   }
 )
 
-lazy val commonSettings = releaseSettings ++ scalacSettings ++ Seq(
-  libraryDependencies ++= Seq(
-    "org.scalatest" %%% "scalatest" % "3.1.1" % Test
-  )
-)
+lazy val commonSettings = scalacSettings
 
 lazy val root = project
   .in(file("."))
@@ -94,8 +72,8 @@ lazy val example = project
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio"      % "1.0.4-2",
-      "dev.zio" %%% "zio-json" % "0.1"
+      "dev.zio" %%% "zio"      % "1.0.6",
+      "dev.zio" %%% "zio-json" % "0.1.4"
     )
   )
   .enablePlugins(ScalaJSPlugin)
@@ -106,7 +84,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq(
-      "com.raquo"           %%% "laminar"       % "0.12.1",
+      "com.raquo"           %%% "laminar"       % "0.12.2",
       "com.propensive"      %%% "magnolia"      % "0.17.0",
       scalaOrganization.value % "scala-reflect" % scalaVersion.value
     )

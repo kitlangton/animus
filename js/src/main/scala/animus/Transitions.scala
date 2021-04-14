@@ -11,7 +11,6 @@ import scala.scalajs.js.timers.SetTimeoutHandle
 
 sealed trait TransitionStatus { self =>
   def isActive: Boolean = self == TransitionStatus.Active
-
 }
 
 object TransitionStatus {

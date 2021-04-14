@@ -118,34 +118,6 @@ function common(variables, mode) {
         inject: 'head',
         config: variables
       }),
-      new CopyWebpackPlugin({
-      patterns: [{
-          from: './example/src/main/resources/audio',
-          to: 'audio'
-        },
-       ]
-    })
-//      new CopyWebpackPlugin([{
-//          from: './modules/frontend/src/static/images',
-//          to: 'images'
-//        },
-//        {
-//          from: './modules/frontend/src/static/robots.txt',
-//          to: '[name].[ext]'
-//        },
-//        {
-//          from: './modules/frontend/src/static/data/*.json',
-//          to: '[name].[ext]'
-//        },
-//        {
-//          from: './modules/frontend/src/static/javascripts/*.min.js.map',
-//          to: '[name].[ext]'
-//        },
-//        {
-//          from: './modules/frontend/src/static/javascripts/*.min.js',
-//          to: '[name].[ext]'
-//        },
-//      ])
     ],
     devServer
   }

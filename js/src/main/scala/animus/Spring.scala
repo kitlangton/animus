@@ -6,13 +6,19 @@ final class Spring(
     var value: Double = 0,
     var velocity: Double = 0,
     var target: Double = 0,
+    var lastTime: Double = -1,
     stiffness: Double = 170,
     damping: Double = 26,
     precision: Double = 0.005
 ) extends js.Object { self =>
 
   def tick(t: Double): Unit = {
-    val delta = 1.0 / 80.0
+    val delta =
+//      if (lastTime == -1.0) {
+      1.0 / 70.0
+//      } else {
+//        (t - lastTime) / 1000.0
+//      }
 
     val fSpring = -stiffness * (value - target);
     val fDamper = -damping * velocity;
@@ -20,6 +26,8 @@ final class Spring(
 
     val newVelocity = velocity + a * delta
     val newValue    = value + newVelocity * delta;
+
+    lastTime = t
 
     if (Math.abs(newVelocity) < precision && Math.abs(newValue - target) < precision) {
       value = target
