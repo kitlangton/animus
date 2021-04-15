@@ -11,6 +11,19 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
     extends Signal[A]
     with SingleParentObservable[A, A] {
 
+  private var anim: animatable.Anim = _
+  private var animating             = false
+
+  def tick(): Unit = {
+    val _ = dom.window.requestAnimationFrame(step)
+  }
+
+  private val step: scalajs.js.Function1[Double, Unit] = (t: Double) => {
+    animatable.tick(anim, t)
+    fireQuick(animatable.fromAnim(anim))
+    tick()
+  }
+
   override protected[this] def initialValue: Try[A] = {
     val value = parent.tryNow()
     value.foreach { a =>
@@ -21,27 +34,9 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
 
   override val topoRank: Int = parent.topoRank + 1
 
-  private var anim: animatable.Anim = _
-  private var animating             = false
-
-  def tick(): Unit = {
-    val _ = dom.window.requestAnimationFrame(step)
-  }
-
-  val step: scalajs.js.Function1[Double, Unit] = (t: Double) => {
-    animatable.tick(anim, t)
-    fireQuick(animatable.fromAnim(anim))
-    tick()
-  }
-
   def fireQuick(value: A): Unit = {
-    externalObservers.foreach { observer =>
-      observer.onNext(value)
-    }
-
-    internalObservers.foreach { observer =>
-      observer.onNext(value, null)
-    }
+    externalObservers.foreach(_.onNext(value))
+    internalObservers.foreach(_.onNext(value, null))
   }
 
   override def onNext(nextValue: A, transaction: Transaction): Unit = {
@@ -56,11 +51,4 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
 
   override protected[airstream] def onTry(nextValue: Try[A], transaction: Transaction): Unit =
     nextValue.foreach(onNext(_, null))
-}
-
-object SpringSignal {
-  implicit final class SignalOps[A](val signal: Signal[A]) extends AnyVal {
-    def sprinkle(implicit animatable: Animatable[A]): Signal[A] =
-      new SpringSignal[A](signal)
-  }
 }

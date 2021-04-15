@@ -3,25 +3,57 @@ package animus
 import com.raquo.airstream.core.Signal
 import com.raquo.airstream.state.Var
 import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
 import scala.scalajs.js.timers.SetTimeoutHandle
 
-sealed trait TransitionStatus { self =>
-  def isActive: Boolean = self == TransitionStatus.Active
-}
+case class Transition(signal: Signal[TransitionStatus]) {
+  lazy val $isActive: Signal[Boolean] = signal.map(_.isActive)
 
-object TransitionStatus {
-  case object Inserting extends TransitionStatus
-  case object Active    extends TransitionStatus
-  case object Removing  extends TransitionStatus
+  lazy val opacity: Mod[HtmlElement] =
+    Transitions.opacity($isActive)
+
+  lazy val width: Mod[HtmlElement] =
+    Transitions.width($isActive)
+
+  lazy val height: Mod[HtmlElement] =
+    Transitions.height($isActive)
 }
 
 object Transitions {
+  def opacity($visible: Signal[Boolean]): Mod[HtmlElement] =
+    L.opacity <-- $visible.map { if (_) 1.0 else 0 }.spring
 
-  def transitionHeight($isVisible: Signal[Boolean], dynamicHeight: Boolean = false): Mod[HtmlElement] = Seq(
+  def height($open: Signal[Boolean]): Mod[HtmlElement] =
+    Seq(
+      overflowY.hidden,
+      inContext { (el: HtmlElement) =>
+        L.maxHeight <-- $open.map {
+          if (_)
+            el.ref.scrollHeight.toDouble
+          else
+            0.0
+        }.spring.px
+      }
+    )
+
+  def width($open: Signal[Boolean]): Mod[HtmlElement] =
+    Seq(
+      overflowX.hidden,
+      inContext { (el: HtmlElement) =>
+        L.maxWidth <-- $open.map {
+          if (_)
+            el.ref.scrollWidth.toDouble
+          else
+            0.0
+        }.spring.px
+      }
+    )
+
+  def heightDynamic($isVisible: Signal[Boolean]): Mod[HtmlElement] = Seq(
     overflowY.hidden,
     onMountBind { (el: MountContext[HtmlElement]) =>
       lazy val $height = ResizeObserver
@@ -30,15 +62,13 @@ object Transitions {
         .toSignal(0.0)
 
       maxHeight <-- $isVisible.flatMap { b =>
-        if (b) {
-          if (dynamicHeight) $height
-          else Val(el.thisNode.ref.scrollHeight.toDouble)
-        } else Val(0.0)
+        if (b) { $height }
+        else Val(0.0)
       }.spring.px
     }
   )
 
-  def transitionWidth($isVisible: Signal[Boolean], dynamicWidth: Boolean = false): Mod[HtmlElement] = Seq(
+  def widthDynamic($isVisible: Signal[Boolean]): Mod[HtmlElement] = Seq(
     overflowX.hidden,
     onMountBind { (el: MountContext[HtmlElement]) =>
       lazy val $width = ResizeObserver
@@ -47,17 +77,15 @@ object Transitions {
         .toSignal(0.0)
 
       maxWidth <-- $isVisible.flatMap { b =>
-        if (b) {
-          if (dynamicWidth) $width
-          else Val(el.thisNode.ref.scrollWidth.toDouble)
-        } else Val(0.0)
+        if (b) { $width }
+        else Val(0.0)
       }.spring.px
     }
   )
 
   def transitionList[A, Key, Output](
       $items: Signal[Seq[A]]
-  )(getKey: A => Key)(project: (Key, A, Signal[A], Signal[TransitionStatus]) => Output): Signal[Seq[Output]] = {
+  )(getKey: A => Key)(project: (Key, A, Signal[A], Transition) => Output): Signal[Seq[Output]] = {
 
     type ValueMap = Map[Key, (A, TransitionStatus)]
     val valueMap: Var[ValueMap] = Var(Map.empty[Key, (A, TransitionStatus)])
@@ -136,7 +164,7 @@ object Transitions {
       }
     )
       .split(v => getKey(v._1)) { (k, init, $a) =>
-        project(k, init._1, $a.map(_._1), $a.map(_._2))
+        project(k, init._1, $a.map(_._1), Transition($a.map(_._2)))
       }
   }
 

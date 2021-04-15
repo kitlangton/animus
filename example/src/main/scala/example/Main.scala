@@ -1,11 +1,12 @@
 package example
 
-import animus.SignalOps
-import com.raquo.airstream.timing.PeriodicEventStream
+import animus._
+import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L._
-import org.scalajs.dom.document
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+import org.scalajs.dom.{document, html}
 
-import scala.util.Random
+import scala.language.implicitConversions
 
 object Main {
   def main(args: Array[String]): Unit =
@@ -14,64 +15,66 @@ object Main {
       render(container, body)
     }(unsafeWindowOwner)
 
-  val positionVar: Var[Double] = Var(0.0)
-
-  def every[A](a: => A, ms: => Int = 300): Signal[A] =
-    new PeriodicEventStream[A](
-      initial = a,
-      next = _ => Some((a, ms)),
-      true,
-      true
-    ).toSignal(a)
-
-  var mousePosition = (0.0, 0.0)
-
-  val colors = Vector("#888", "#ccc", "#ddd", "#fff")
-
-  def randomCube = {
-
-    def coord =
-      ((Random.nextDouble() * 150) - 75 + mousePosition._1, (Random.nextDouble() * 150) - 75 + mousePosition._2)
-
-    val $xyPosition: Signal[(Double, Double)] =
-      every(coord, Random.nextInt(1000) + 300).spring
-
-    svg.rect(
-      svg.width("2px"),
-      svg.height("2px"),
-      svg.fill("white"),
-      svg.x <-- $xyPosition.map(_._1).px,
-      svg.y <-- $xyPosition.map(_._2).px
+  def body: Div = {
+    div(
+      margin("40px"),
+      em(h1("ANIMUS")),
+      AnimateTextExample()
     )
   }
 
-  def body: Div =
-    div(
-      margin("40px"),
-      h1("ANIMUS"),
-      windowEvents.onMouseMove --> { e => mousePosition = e.clientX -> e.clientY },
-      windowEvents.onKeyDown.map(_.key.toIntOption.getOrElse(0).toDouble * 40) --> positionVar,
+  trait Component {
+    def body: HtmlElement
+  }
+
+  object Component {
+    implicit def toLaminarElement(component: Component): HtmlElement = component.body
+  }
+
+  case class AnimateTextExample() extends Component {
+    val textVar                                  = Var("")
+    val $characters: Signal[List[(String, Int)]] = textVar.signal.map(_.split("").zipWithIndex.toList)
+    val $isEmpty                                 = textVar.signal.map(_.isEmpty)
+
+    val keyEvents = windowEvents.onKeyDown.map(_.key) --> {
+      case "Backspace" => textVar.update(_.dropRight(1))
+      case " "         => textVar.update(_ + "•")
+      case "Shift"     => ()
+      case "Meta"      => ()
+      case "Alt"       => ()
+      case "Control"   => ()
+      case "Enter"     => textVar.update(_ + "¶")
+      case x           => textVar.update(_ + x.toUpperCase)
+      case _           => ()
+    }
+
+    def body: Div = {
       div(
-        position.fixed,
-        left("0"),
-        right("0"),
-        top("0"),
-        bottom("0"),
-        svg.svg(
-          svg.width("100vw"),
-          svg.height("100vh"),
-          List.fill(800) {
-            randomCube
-          }
-        )
+        fontWeight.bold,
+        keyEvents,
+        div(
+          opacity <-- $isEmpty.map {
+            if (_) 1.0 else 0.6
+          }.spring,
+          transformOrigin("bottom left"),
+          transform <-- $isEmpty.map {
+            if (_) 1.0 else 0.6
+          }.spring.map { s => s"scale($s)" },
+          "TYPE SOMETHING."
+        ),
+        children <-- $characters.splitTransition(identity) { (_, value, _, transition) =>
+          val character = value._1
+          div(
+            character,
+            Option.when(Set("•", "¶")(character))(opacity(0.4)),
+            display.inlineFlex,
+            color("orange"),
+            transition.width,
+            transition.height
+          )
+        }
       )
-//      child.text <-- positionVar.signal.sprinkle.px,
-//      div(
-//        width("40px"),
-//        height("40px"),
-//        background("red"),
-//        position.relative,
-//        left <-- positionVar.signal.sprinkle.px
-//      )
-    )
+    }
+
+  }
 }
