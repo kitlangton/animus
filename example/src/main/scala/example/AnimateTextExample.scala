@@ -2,7 +2,7 @@ package example
 
 import animus._
 import com.raquo.laminar.api.L._
-import example.components.codeBlock
+import example.components.{FadeInWords, codeBlock}
 
 case class AnimateTextExample() extends Component {
   val textVar                                  = Var("")
@@ -32,7 +32,7 @@ case class AnimateTextExample() extends Component {
           transform <-- $isEmpty.map {
             if (_) 1.0 else 0.6
           }.spring.map { s => s"scale($s)" },
-          "TYPE SOMETHING."
+          FadeInWords("TYPE SOMETHING.", 3500)
         ),
         children <-- $characters.splitTransition(identity) { case (_, (char, _), _, transition) =>
           div(
