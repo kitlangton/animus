@@ -10,18 +10,16 @@ object AnimatedTitle extends Component {
   val $time: Signal[Double] =
     new PeriodicEventStream[Double](
       initial = 0.0,
-//      next = eventNumber => Some((eventNumber + 1.0, ((1000 / 60).toDouble * Math.sin(eventNumber / 50)).toInt)),
-      next = eventNumber => Some((eventNumber + 1.0, (1000 / 100))),
+      next = eventNumber => Some((eventNumber + 1.0, ((1000 / 60).toDouble * Math.sin(eventNumber / 50)).toInt)),
       emitInitial = true,
       resetOnStop = true
     ).toSignal(0.0)
 
   def body: HtmlElement = h1(
+    cursor.pointer,
     textAlign.center,
-    onClick --> { _ => activeVar.update(!_) },
-    onMouseOver --> { _ => activeVar.update(!_) },
-    onMouseOut --> { _ => activeVar.update(!_) },
-    transform <-- activeVar.signal.map { if (_) 1.15 else 0.8 }.spring.map { s => s"scale($s)" },
+    onMouseOver --> { _ => activeVar.set(false) },
+    onMouseOut --> { _ => activeVar.set(true) },
     "ANIMUS".zipWithIndex.map { case (char, idx) =>
       val $top     = $time.map { i => Math.sin((i + idx * 15) / 30.0) * 15.0 }
       val $opacity = $time.map { i => (Math.sin((i + idx * 15) / 30.0) / -2) + 1 }
@@ -37,8 +35,6 @@ object AnimatedTitle extends Component {
         display.inlineFlex,
         char.toString,
         position.relative,
-        transform <-- activeVar.signal.map { if (_) 0.5 else 1.0 }.spring.map { s => s"scale($s)" },
-//        transform("scale(0.8)"),
         top <-- activate($top, 0).px,
         opacity <-- activate($opacity, 1)
       )

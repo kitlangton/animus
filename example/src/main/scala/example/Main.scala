@@ -147,7 +147,7 @@ val box =
     left <-- $position.px
   )
   
-val box = 
+val circle = 
   Circle(
     left <-- $position.spring.px
   )
