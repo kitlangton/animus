@@ -3,11 +3,9 @@
 @import "highlight.js/styles/atom-one-dark.css";
 
 html {
-//     height: 100%;
     margin: 0px;
     padding: 0px;
 }
-
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -23,14 +21,9 @@ pre {
   margin: 0;
 }
 
-// .progress {
-//     transition: width 0.3s;
-//     width: 4px;
-//     &.progress-active  {
-//         width: 18px;
-//     }
-// }
-
+code {
+  font-family: "Source Code Pro" !important;
+}
 
 .section {
     transition: opacity 2s;
