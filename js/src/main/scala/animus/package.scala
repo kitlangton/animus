@@ -1,5 +1,4 @@
-import com.raquo.airstream.animus.SpringSignal
-import com.raquo.airstream.core.{EventStream, Observable, Signal}
+import com.raquo.airstream.core._
 
 package object animus {
   implicit final class ObservableOps[A](private val self: Observable[A]) extends AnyVal {

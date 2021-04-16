@@ -1,13 +1,12 @@
-package com.raquo.airstream.animus
+package com.raquo.airstream.core
 
 import animus.Animatable
 import com.raquo.airstream.common.SingleParentObservable
-import com.raquo.airstream.core.{Signal, Transaction}
 import org.scalajs.dom
 
 import scala.util.Try
 
-class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
+class SpringSignal[A](override protected val parent: Signal[A])(implicit animatable: Animatable[A])
     extends Signal[A]
     with SingleParentObservable[A, A] {
 
@@ -24,7 +23,7 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
     tick()
   }
 
-  override protected[this] def initialValue: Try[A] = {
+  override protected[airstream] def initialValue: Try[A] = {
     val value = parent.tryNow()
     value.foreach { a =>
       anim = animatable.toAnim(a)
@@ -32,14 +31,14 @@ class SpringSignal[A](val parent: Signal[A])(implicit animatable: Animatable[A])
     value
   }
 
-  override val topoRank: Int = parent.topoRank + 1
+  override protected[airstream] val topoRank: Int = parent.topoRank + 1
 
   def fireQuick(value: A): Unit = {
     externalObservers.foreach(_.onNext(value))
     internalObservers.foreach(_.onNext(value, null))
   }
 
-  override def onNext(nextValue: A, transaction: Transaction): Unit = {
+  override protected[airstream] def onNext(nextValue: A, transaction: Transaction): Unit = {
     animatable.update(anim, nextValue)
     if (!animating) {
       animating = true

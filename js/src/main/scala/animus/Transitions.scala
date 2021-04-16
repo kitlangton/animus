@@ -30,10 +30,10 @@ object Transitions {
   def height($open: Signal[Boolean]): Mod[HtmlElement] =
     Seq(
       overflowY.hidden,
-      inContext { (el: HtmlElement) =>
+      onMountBind { (el: MountContext[HtmlElement]) =>
         L.maxHeight <-- $open.map {
           if (_)
-            el.ref.scrollHeight.toDouble
+            el.thisNode.ref.scrollHeight.toDouble
           else
             0.0
         }.spring.px
@@ -43,10 +43,10 @@ object Transitions {
   def width($open: Signal[Boolean]): Mod[HtmlElement] =
     Seq(
       overflowX.hidden,
-      inContext { (el: HtmlElement) =>
+      onMountBind { (el: MountContext[HtmlElement]) =>
         L.maxWidth <-- $open.map {
           if (_)
-            el.ref.scrollWidth.toDouble
+            el.thisNode.ref.scrollWidth.toDouble
           else
             0.0
         }.spring.px
