@@ -21,7 +21,7 @@ val $left: Signal[Double] = EventStream.periodic(1000).toSignal(0).mapToValue(Ra
 
 val animatedBox =
   div(
-    width("100px),
+    width("100px"),
     height("100px"),
     position.relative,
     left <-- $left.spring.px
