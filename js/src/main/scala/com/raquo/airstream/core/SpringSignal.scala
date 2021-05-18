@@ -8,13 +8,29 @@ import scala.util.Try
 
 class SpringSignal[A](override protected val parent: Signal[A])(implicit animatable: Animatable[A])
     extends Signal[A]
+    with WritableSignal[A]
     with SingleParentObservable[A, A] {
 
   private var anim: animatable.Anim = _
   private var animating             = false
+  private var rafHandle: Int        = _
 
   def tick(): Unit = {
-    val _ = dom.window.requestAnimationFrame(step)
+    rafHandle = dom.window.requestAnimationFrame(step)
+  }
+
+  override def onStart(): Unit = {
+    super.onStart()
+    if (!animating) {
+      animating = true
+      tick()
+    }
+  }
+
+  override def onStop(): Unit = {
+    super.onStop()
+    dom.window.cancelAnimationFrame(rafHandle)
+    animating = false
   }
 
   private val step: scalajs.js.Function1[Double, Unit] = (t: Double) => {
@@ -31,11 +47,11 @@ class SpringSignal[A](override protected val parent: Signal[A])(implicit animata
     value
   }
 
-  override protected[airstream] val topoRank: Int = parent.topoRank + 1
+  override protected[airstream] val topoRank: Int = Protected.topoRank(parent) + 1
 
   def fireQuick(value: A): Unit = {
     externalObservers.foreach(_.onNext(value))
-    internalObservers.foreach(_.onNext(value, null))
+    internalObservers.foreach(InternalObserver.onNext(_, value, null))
   }
 
   override protected[airstream] def onNext(nextValue: A, transaction: Transaction): Unit = {

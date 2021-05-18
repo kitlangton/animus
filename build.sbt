@@ -61,6 +61,7 @@ lazy val root = project
   .aggregate(animusJS, animusJVM)
   .settings(commonSettings)
   .settings(
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     skip in publish := true
   )
 
@@ -79,13 +80,20 @@ lazy val example = project
   )
   .enablePlugins(ScalaJSPlugin)
 
+testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+
 lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
-  .settings(commonSettings)
+  .settings(
+    commonSettings,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    libraryDependencies += "dev.zio" %%% "zio-test" % "1.0.6" % Test
+  )
   .jsSettings(
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq(
-      "com.raquo"           %%% "laminar"       % "0.12.2",
+      "com.raquo"           %%% "laminar"       % "0.13.0",
       "com.propensive"      %%% "magnolia"      % "0.17.0",
       scalaOrganization.value % "scala-reflect" % scalaVersion.value
     )
