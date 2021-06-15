@@ -7,15 +7,15 @@ final class Spring(
     var velocity: Double = 0,
     var target: Double = 0,
     var lastTime: Double = -1,
-    stiffness: Double = 175,
-    damping: Double = 28,
+    stiffness: Double = 170,
+    damping: Double = 26,
     precision: Double = 0.005
 ) extends js.Object { self =>
 
   def tick(t: Double): Unit = {
     val delta =
 //      if (lastTime == -1.0) {
-      1.0 / 50.0
+      1.0 / 65.0
 //      } else {
 //        (t - lastTime) / 1000.0
 //      }
