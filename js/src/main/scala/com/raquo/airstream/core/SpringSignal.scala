@@ -13,10 +13,9 @@ class SpringSignal[A](override protected val parent: Signal[A])(implicit animata
 
   private var anim: animatable.Anim = _
   private var animating             = false
-  private var rafHandle: Int        = _
 
   def tick(): Unit = {
-    rafHandle = dom.window.requestAnimationFrame(step)
+    dom.window.requestAnimationFrame(step)
   }
 
   override def onStart(): Unit = {
@@ -29,15 +28,20 @@ class SpringSignal[A](override protected val parent: Signal[A])(implicit animata
 
   override def onStop(): Unit = {
     super.onStop()
-    dom.window.cancelAnimationFrame(rafHandle)
     animating = false
   }
 
-  private val step: scalajs.js.Function1[Double, Unit] = (t: Double) => {
-    animatable.tick(anim, t)
-    fireQuick(animatable.fromAnim(anim))
-    tick()
-  }
+  private val step: scalajs.js.Function1[Double, Unit] = (t: Double) =>
+    if (animating) {
+      println("STEP")
+      val isDone = animatable.tick(anim, t)
+      fireQuick(animatable.fromAnim(anim))
+      if (isDone) {
+        println("DONE")
+        animating = false
+      }
+      tick()
+    }
 
   override protected[airstream] def initialValue: Try[A] = {
     val value = parent.tryNow()

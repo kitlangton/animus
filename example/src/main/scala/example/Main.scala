@@ -44,13 +44,33 @@ object Main {
         ),
         maxWidth("600px"),
         margin("0 auto"),
+//        PerformanceTest,
         AnimatedTitle,
         TimeWasted,
         TheBasics,
+        AnimateTest,
         AnimateTextExample()
       )
     )
   }
+}
+
+object AnimateTest extends Component {
+  val numberVar = Var(Set(0, 8, 3))
+  override def body: HtmlElement =
+    div(
+      windowEvents.onKeyDown.map(_.key.toIntOption.getOrElse(0)) --> { int =>
+        numberVar.update(set => if (set(int)) set - int else set + int)
+      },
+      children <-- numberVar.signal.map(_.toList).splitTransition(identity) { (_, int, $int, transition) =>
+        div(
+          fontWeight.bold,
+          int.toString,
+          transition.height
+        )
+      }
+    )
+
 }
 
 object TheBasics extends Component {

@@ -5,8 +5,8 @@ inThisBuild(
     name := "animus",
     normalizedName := "animus",
     organization := "com.kitlangton",
-    scalaVersion := "2.13.5",
-    crossScalaVersions := Seq("2.13.5"),
+    scalaVersion := "2.13.6",
+    crossScalaVersions := Seq("2.13.6"),
     organization := "io.github.kitlangton",
     homepage := Some(url("https://github.com/kitlangton/animus")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -74,8 +74,8 @@ lazy val example = project
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio"      % "1.0.6",
-      "dev.zio" %%% "zio-json" % "0.1.4"
+      "dev.zio" %%% "zio"      % "1.0.9",
+      "dev.zio" %%% "zio-json" % "0.1.5"
     )
   )
   .enablePlugins(ScalaJSPlugin)

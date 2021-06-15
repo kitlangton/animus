@@ -22,12 +22,6 @@ sealed trait Animation { self =>
         val flatAnim                            = animation.flattened
         val (lastValue, _)                      = flatAnim.last
         val res: Vector[(() => Double, Double)] = flatAnim.dropRight(1).appended((lastValue, delay))
-        if (lastValue() == 50) {
-          println(lastValue())
-          println(delay)
-          println(flatAnim.map(p => p._1() -> p._2))
-          println(res.map(p => p._1() -> p._2))
-        }
         res
       case Sequence(lhs, rhs) =>
         lhs.flattened ++ rhs.flattened
