@@ -33,11 +33,9 @@ class SpringSignal[A](override protected val parent: Signal[A])(implicit animata
 
   private val step: scalajs.js.Function1[Double, Unit] = (t: Double) =>
     if (animating) {
-      println("STEP")
       val isDone = animatable.tick(anim, t)
       fireQuick(animatable.fromAnim(anim))
       if (isDone) {
-        println("DONE")
         animating = false
       }
       tick()
