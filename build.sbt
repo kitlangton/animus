@@ -5,8 +5,8 @@ inThisBuild(
     name := "animus",
     normalizedName := "animus",
     organization := "com.kitlangton",
-    scalaVersion := "2.13.6",
-    crossScalaVersions := Seq("2.13.6"),
+    scalaVersion := "2.13.7",
+    crossScalaVersions := Seq("2.13.7"),
     organization := "io.github.kitlangton",
     homepage := Some(url("https://github.com/kitlangton/animus")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -74,7 +74,7 @@ lazy val example = project
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio"      % "1.0.9",
+      "dev.zio" %%% "zio"      % "1.0.12",
       "dev.zio" %%% "zio-json" % "0.1.5"
     )
   )
@@ -93,7 +93,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq(
-      "com.raquo"           %%% "laminar"       % "0.13.0",
+      "com.raquo"           %%% "laminar"       % "0.14.0",
       "com.propensive"      %%% "magnolia"      % "0.17.0",
       scalaOrganization.value % "scala-reflect" % scalaVersion.value
     )
