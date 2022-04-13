@@ -87,7 +87,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .settings(
     commonSettings,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    libraryDependencies += "dev.zio" %%% "zio-test" % "1.0.13" % Test
+    libraryDependencies += "dev.zio" %%% "zio-test" % "1.0.14" % Test
   )
   .jsSettings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
