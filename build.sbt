@@ -18,7 +18,8 @@ inThisBuild(
         url("https://github.com/kitlangton")
       )
     ),
-    sonatypeCredentialHost := "s01.oss.sonatype.org"
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
   )
 )
 
@@ -62,7 +63,7 @@ lazy val root = project
   .settings(commonSettings)
   .settings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    skip in publish := true
+    skip / publish := true
   )
 
 lazy val example = project
@@ -72,7 +73,7 @@ lazy val example = project
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    skip in publish := true,
+    skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % "1.0.14",
       "dev.zio" %%% "zio-json" % "0.1.5"
