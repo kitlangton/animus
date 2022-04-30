@@ -74,7 +74,7 @@ lazy val example = project
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio"      % "1.0.12",
+      "dev.zio" %%% "zio"      % "1.0.14",
       "dev.zio" %%% "zio-json" % "0.1.5"
     )
   )

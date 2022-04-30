@@ -83,9 +83,9 @@ class TransitioningSignal[Input, Output, Key](
       activeKeys.remove(key)
       memoized.get(key).map(_._3).foreach(_.set(TransitionStatus.Removing))
       val handle = setTimeout(950) {
-        refireMemoized()
         memoized.remove(key)
         ordered.remove(key)
+        refireMemoized()
       }
       timeoutHandles(key) = handle
     }
