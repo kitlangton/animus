@@ -3,7 +3,7 @@ package example
 import animus._
 import com.raquo.laminar.api.L._
 import example.components.{FadeInWords, codeBlock}
-import org.scalajs.dom.{document, window}
+import org.scalajs.dom.document
 
 import scala.scalajs.js.timers.setTimeout
 import scala.util.Random
@@ -11,7 +11,7 @@ import scala.util.Random
 object Main {
   def main(args: Array[String]): Unit =
     documentEvents.onDomContentLoaded.foreach { _ =>
-      val container = document.body
+      val container = document.getElementById("app")
       render(container, body)
     }(unsafeWindowOwner)
 
@@ -44,11 +44,11 @@ object Main {
         ),
         maxWidth("600px"),
         margin("0 auto"),
-//        PerformanceTest,
+//        PerformanceTest.body,
         AnimatedTitle,
         TimeWasted,
         TheBasics,
-        AnimateTest,
+//        AnimateTest
         AnimateTextExample()
       )
     )

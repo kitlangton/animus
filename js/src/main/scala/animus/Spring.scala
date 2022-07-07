@@ -3,51 +3,63 @@ package animus
 import scala.scalajs.js
 
 final class Spring(
-    var value: Double = 0,
-    var velocity: Double = 0,
-    var target: Double = 0,
-    var lastTime: Double = -1,
-    stiffness: Double = 170,
-    damping: Double = 26,
-    precision: Double = 0.005
+  var position: Double = 0,
+  var velocity: Double = 0,
+  var to: Double = 0,
+  var lastTime: Double = -1,
+  stiffness: Double = 170,
+  damping: Double = 26,
+  precision: Double = 0.005
 ) extends js.Object { self =>
 
+  private val FPS = 1.0 / 1000.0
+
   def tick(t: Double): Unit = {
-    val delta =
-//      if (lastTime == -1.0) {
-      1.0 / 65.0
-//      } else {
-//        (t - lastTime) / 1000.0
-//      }
-
-    val fSpring = -stiffness * (value - target);
-    val fDamper = -damping * velocity;
-    val a       = fSpring + fDamper;
-
-    val newVelocity = velocity + a * delta
-    val newValue    = value + newVelocity * delta;
+    val dt = if (lastTime <= 0) 8 else t - lastTime
 
     lastTime = t
 
-    if (Math.abs(newVelocity) < precision && Math.abs(newValue - target) < precision) {
-      value = target
-      velocity = 0
-    } else {
-      value = newValue
-      velocity = newVelocity
+    val numSteps = dt.toInt
+
+    var i    = 0
+    var done = false
+    while (i < numSteps && !done) {
+
+      val fSpring = -stiffness * (position - to);
+      val fDamper = -damping * velocity;
+      val a       = fSpring + fDamper;
+
+      val newVelocity = velocity + a * FPS
+      val newValue    = position + (newVelocity * FPS)
+
+      if (Math.abs(newVelocity) < precision && Math.abs(newValue - to) < precision) {
+        position = to
+        velocity = 0
+        i = numSteps // done
+        lastTime = -1
+      } else {
+        position = newValue
+        velocity = newVelocity
+      }
+
+      i += 1
     }
+
+    velocity = velocity
+    position = position
   }
 
-  def isDone: Boolean = value == target && velocity == 0d
+  def isDone: Boolean = position == to && velocity == 0d
 
   def setTarget(newTarget: Double): Unit =
-    this.target = newTarget
+    this.to = newTarget
 }
 
 object Spring {
   def fromValue(value: Double): Spring =
-    new Spring(value = value, target = value)
+    new Spring(position = value, to = value)
 
   def minMax(value: Double, min: Double, max: Double): Double =
     Math.min(Math.max(value, min), max)
+
 }

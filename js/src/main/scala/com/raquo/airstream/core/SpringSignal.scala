@@ -14,9 +14,8 @@ class SpringSignal[A](override protected val parent: Signal[A])(implicit animata
   private var anim: animatable.Anim = _
   private var animating             = false
 
-  def tick(): Unit = {
+  def tick(): Unit =
     dom.window.requestAnimationFrame(step)
-  }
 
   override def onStart(): Unit = {
     super.onStart()

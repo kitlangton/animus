@@ -2,9 +2,9 @@ package animus
 
 import animus.TransitionStatus.{Active, Inserting, Removing}
 import zio.test.Assertion.equalTo
-import zio.test.{DefaultRunnableSpec, assert}
+import zio.test._
 
-object TransitionSetSpec extends DefaultRunnableSpec {
+object TransitionSetSpec extends ZIOSpecDefault {
   override def spec = suite("TransitionSpec")(
     test("add values") {
       val set      = TransitionSet.empty[Int]

@@ -42,7 +42,7 @@ object PerformanceTest {
   def body: Div =
     div(
       margin("40px"),
-      h1("ANIMUS"),
+//      h1("ANIMUS"),
       windowEvents.onMouseMove --> { e => mousePosition = e.clientX -> e.clientY },
       windowEvents.onKeyDown.map(_.key.toIntOption.getOrElse(0).toDouble * 40) --> positionVar,
       div(

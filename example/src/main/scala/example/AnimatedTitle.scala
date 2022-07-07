@@ -10,7 +10,7 @@ object AnimatedTitle extends Component {
   val $time: Signal[Double] =
     new PeriodicEventStream[Double](
       initial = 0.0,
-      next = eventNumber => Some((eventNumber + 1.0, ((1000 / 60).toDouble * Math.sin(eventNumber / 50)).toInt)),
+      next = eventNumber => Some((eventNumber + 1.5, (1000 / 60).toDouble.toInt)),
       emitInitial = true,
       resetOnStop = true
     ).toSignal(0.0)
@@ -21,8 +21,8 @@ object AnimatedTitle extends Component {
     onMouseOver --> { _ => activeVar.set(false) },
     onMouseOut --> { _ => activeVar.set(true) },
     "ANIMUS".zipWithIndex.map { case (char, idx) =>
-      val $top     = $time.map { i => Math.sin((i + idx * 15) / 30.0) * 15.0 }
-      val $opacity = $time.map { i => (Math.sin((i + idx * 15) / 30.0) / -2) + 1 }
+      val $top     = $time.map(i => Math.sin((i + idx * 15) / 30.0) * 15.0)
+      val $opacity = $time.map(i => (Math.sin((i + idx * 15) / 30.0) / -2) + 1)
 
       def activate(signal: Signal[Double], default: Double): Signal[Double] =
         activeVar.signal.flatMap { active =>

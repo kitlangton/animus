@@ -27,7 +27,7 @@ object Animatable {
 
     override def update(anim: Spring, newValue: Double): Unit = anim.setTarget(newValue)
 
-    override def fromAnim(anim: Spring): Double = anim.value
+    override def fromAnim(anim: Spring): Double = anim.position
   }
 
   implicit def animatableTuple[A, B](implicit a: Animatable[A], b: Animatable[B]): Animatable[(A, B)] =
@@ -52,9 +52,9 @@ object Animatable {
     }
 
   implicit def animatableTuple3[A, B, C](implicit
-      a: Animatable[A],
-      b: Animatable[B],
-      c: Animatable[C]
+    a: Animatable[A],
+    b: Animatable[B],
+    c: Animatable[C]
   ): Animatable[(A, B, C)] =
     new Animatable[(A, B, C)] {
       override type Anim = (a.Anim, b.Anim, c.Anim)
