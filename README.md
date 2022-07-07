@@ -7,7 +7,7 @@ An FRP animation library for Laminar
 
 ```sbt
 // build.sbt
-libraryDependencies += "io.github.kitlangton" %%% "animus" % "0.1.15"
+libraryDependencies += "io.github.kitlangton" %%% "animus" % "0.2.0"
 ```
 
 [Silly Demos](https://animus-examples.surge.sh)
