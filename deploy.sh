@@ -1,4 +1,4 @@
 sbt example/fullLinkJS
-npm run build:prod
+yarn exec -- vite build
 cp dist/index.html dist/200.html
-npx surge ./dist 'animus-examples.surge.sh'
+surge ./dist 'animus-examples.surge.sh'
