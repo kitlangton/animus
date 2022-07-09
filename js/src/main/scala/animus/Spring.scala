@@ -12,7 +12,7 @@ final class Spring(
   precision: Double = 0.005
 ) extends js.Object { self =>
 
-  private val FPS = 1.0 / 1000.0
+  private val FPS = (1.0 / 1000.0) * 1.4
 
   def tick(t: Double): Unit = {
     val dt = if (lastTime <= 0) 8 else t - lastTime
@@ -21,9 +21,8 @@ final class Spring(
 
     val numSteps = dt.toInt
 
-    var i    = 0
-    var done = false
-    while (i < numSteps && !done) {
+    var i = 0
+    while (i < numSteps) {
 
       val fSpring = -stiffness * (position - to);
       val fDamper = -damping * velocity;

@@ -3,7 +3,6 @@ package example
 import animus.SignalOps
 import com.raquo.airstream.timing.PeriodicEventStream
 import com.raquo.laminar.api.L._
-import org.scalajs.dom.document
 
 import scala.util.Random
 
