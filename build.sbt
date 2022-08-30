@@ -2,14 +2,14 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 inThisBuild(
   List(
-    name := "animus",
-    normalizedName := "animus",
-    organization := "com.kitlangton",
-    scalaVersion := "2.13.8",
+    name               := "animus",
+    normalizedName     := "animus",
+    organization       := "com.kitlangton",
+    scalaVersion       := "2.13.8",
     crossScalaVersions := Seq("2.13.8"),
-    organization := "io.github.kitlangton",
-    homepage := Some(url("https://github.com/kitlangton/animus")),
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    organization       := "io.github.kitlangton",
+    homepage           := Some(url("https://github.com/kitlangton/animus")),
+    licenses           := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
         "kitlangton",
@@ -17,7 +17,7 @@ inThisBuild(
         "kit.langton@gmail.com",
         url("https://github.com/kitlangton")
       )
-    ),
+    )
   )
 )
 
@@ -86,7 +86,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .settings(
     commonSettings,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    libraryDependencies += "dev.zio" %%% "zio-test" % "2.0.0" % Test
+    libraryDependencies += "dev.zio" %%% "zio-test" % "2.0.2" % Test
   )
   .jsSettings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
