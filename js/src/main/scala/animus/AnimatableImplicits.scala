@@ -1,20 +1,6 @@
 package animus
 
-trait Animatable[A] {
-
-  type Anim
-
-  def toAnim(value: A): Anim
-
-  def fromAnim(anim: Anim): A
-
-  def tick(anim: Anim, time: Double): Boolean
-
-  def update(anim: Anim, newValue: A): Unit
-}
-
-object Animatable {
-
+trait AnimatableImplicits {
   implicit val animatableDouble: Animatable[Double] = new Animatable[Double] {
     override type Anim = Spring
 
@@ -23,7 +9,7 @@ object Animatable {
       anim.isDone
     }
 
-    override def toAnim(value: Double): Spring = Spring.fromValue(value)
+    override def toAnim(start: Double, value: Double): Spring = Spring.fromValueAndTarget(start, value)
 
     override def update(anim: Spring, newValue: Double): Unit = anim.setTarget(newValue)
 
@@ -40,8 +26,8 @@ object Animatable {
         d1 && d2
       }
 
-      override def toAnim(value: (A, B)): (a.Anim, b.Anim) =
-        (a.toAnim(value._1), b.toAnim(value._2))
+      override def toAnim(start: (A, B), value: (A, B)): (a.Anim, b.Anim) =
+        (a.toAnim(start._1, value._1), b.toAnim(start._2, value._2))
 
       override def update(anim: (a.Anim, b.Anim), newValue: (A, B)): Unit = {
         a.update(anim._1, newValue._1)
@@ -66,8 +52,8 @@ object Animatable {
         d1 && d2 && d3
       }
 
-      override def toAnim(value: (A, B, C)): (a.Anim, b.Anim, c.Anim) =
-        (a.toAnim(value._1), b.toAnim(value._2), c.toAnim(value._3))
+      override def toAnim(start: (A, B, C), value: (A, B, C)): (a.Anim, b.Anim, c.Anim) =
+        (a.toAnim(start._1, value._1), b.toAnim(start._2, value._2), c.toAnim(start._3, value._3))
 
       override def update(anim: (a.Anim, b.Anim, c.Anim), newValue: (A, B, C)): Unit = {
         a.update(anim._1, newValue._1)
@@ -79,4 +65,20 @@ object Animatable {
         (a.fromAnim(anim._1), b.fromAnim(anim._2), c.fromAnim(anim._3))
     }
 
+  implicit def animatableIterable[A](implicit a: Animatable[A]): Animatable[Iterable[A]] =
+    new Animatable[Iterable[A]] {
+      override type Anim = Iterable[a.Anim]
+
+      override def tick(anim: Iterable[a.Anim], time: Double): Boolean =
+        anim.map(a.tick(_, time)).reduce(_ && _)
+
+      override def toAnim(start: Iterable[A], value: Iterable[A]): Iterable[a.Anim] =
+        start zip value map { case (s, v) => a.toAnim(s, v) }
+
+      override def update(anim: Iterable[a.Anim], newValue: Iterable[A]): Unit =
+        anim zip newValue foreach { case (an, nv) => a.update(an, nv) }
+
+      override def fromAnim(anim: Iterable[a.Anim]): Iterable[A] =
+        anim.map(a.fromAnim)
+    }
 }

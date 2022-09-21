@@ -9,12 +9,12 @@ object DeriveAnimatable {
     new Animatable[T] {
       override type Anim = Array[Any]
 
-      override def toAnim(value: T): Array[Any] = {
+      override def toAnim(start: T, value: T): Array[Any] = {
         var i     = -1
         val anims = Array.ofDim[Any](ctx.parameters.length)
         ctx.parameters.foreach { param =>
           i += 1
-          anims(i) = param.typeclass.toAnim(param.dereference(value))
+          anims(i) = param.typeclass.toAnim(param.dereference(start), param.dereference(value))
         }
         anims
       }
