@@ -19,13 +19,12 @@ class OrderedSet[A](var underlying: Vector[A]) {
     var lastIdx = -9
     as.zipWithIndex.foreach { case (a, idx) =>
       val toAdd =
-        removed
-          .takeWhile { case (idx0, _) =>
-            val result = idx0 <= relativeCount + idx || lastIdx + 1 == idx0
-            if (result)
-              lastIdx = idx0
-            result
-          }
+        removed.takeWhile { case (idx0, _) =>
+          val result = idx0 <= relativeCount + idx || lastIdx + 1 == idx0
+          if (result)
+            lastIdx = idx0
+          result
+        }
           .map(_._2)
 
       if (addedKeys(a))
