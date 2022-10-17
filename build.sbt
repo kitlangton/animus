@@ -6,7 +6,7 @@ inThisBuild(
     normalizedName := "animus",
     organization := "com.kitlangton",
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8"),
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     organization := "io.github.kitlangton",
     homepage := Some(url("https://github.com/kitlangton/animus")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -86,16 +86,24 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .settings(
     commonSettings,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    libraryDependencies += "dev.zio" %%% "zio-test" % "2.0.0" % Test
+    libraryDependencies += "dev.zio"         %%% "zio-test" % "2.0.0" % Test
   )
   .jsSettings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq(
-      "com.raquo"           %%% "laminar"       % "0.14.2",
-      "com.propensive"      %%% "magnolia"      % "0.17.0",
-      scalaOrganization.value % "scala-reflect" % scalaVersion.value
-    )
+      "com.raquo"                            %%% "laminar"  % "0.14.2"
+    ) ++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          Seq("com.softwaremill.magnolia1_3" %%% "magnolia" % "1.1.5")
+        case _ =>
+          Seq(
+            "com.propensive"                 %%% "magnolia" % "0.17.0",
+            scalaOrganization.value % "scala-reflect" % scalaVersion.value
+          )
+      }
+    }
   )
 
 lazy val animusJS  = animus.js

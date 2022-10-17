@@ -55,6 +55,9 @@ final class Spring(
 }
 
 object Spring {
+  def fromValueAndTarget(value: Double, target: Double): Spring =
+    new Spring(position = value, to = target)
+
   def fromValue(value: Double): Spring =
     new Spring(position = value, to = value)
 
