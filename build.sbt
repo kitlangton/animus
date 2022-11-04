@@ -73,8 +73,8 @@ lazy val example = project
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     skip / publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio"      % "2.0.0",
-      "dev.zio" %%% "zio-json" % "0.3.0-RC9"
+      "dev.zio" %%% "zio"      % "2.0.2",
+      "dev.zio" %%% "zio-json" % "0.3.0"
     )
   )
   .enablePlugins(ScalaJSPlugin)
@@ -86,7 +86,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .settings(
     commonSettings,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    libraryDependencies += "dev.zio"         %%% "zio-test" % "2.0.0" % Test
+    libraryDependencies += "dev.zio"         %%% "zio-test" % "2.0.2" % Test
   )
   .jsSettings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
