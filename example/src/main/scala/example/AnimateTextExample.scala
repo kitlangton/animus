@@ -19,7 +19,7 @@ case class AnimateTextExample() extends Component {
     case _                 => ()
   }
 
-  def body: Div =
+  def body: Div = {
     div(
       keyEvents,
       div(
@@ -31,7 +31,7 @@ case class AnimateTextExample() extends Component {
           transformOrigin("bottom left"),
           transform <-- $isEmpty.map {
             if (_) 1.0 else 0.6
-          }.spring.map(s => s"scale($s)"),
+          }.spring.map { s => s"scale($s)" },
           FadeInWords("TYPE SOMETHING.", 3500)
         ),
         children <-- $characters.splitTransition(identity) { case (_, (char, _), _, transition) =>
@@ -47,6 +47,7 @@ case class AnimateTextExample() extends Component {
       ),
       codeExample
     )
+  }
 
   def codeExample: Div = {
     val showSource = Var(false)
