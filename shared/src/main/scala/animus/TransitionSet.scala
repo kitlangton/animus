@@ -11,20 +11,20 @@ object TransitionSet {
 }
 
 case class TransitionSet[A, Key](
-  ordered: Vector[(Key, A)] = Vector.empty[(Key, A)],
-  contains: Set[Key] = Set.empty[Key],
-  inserting: Set[Key] = Set.empty[Key],
-  removing: Set[Key] = Set.empty[Key],
-  getKey: A => Key
+    ordered: Vector[(Key, A)] = Vector.empty[(Key, A)],
+    contains: Set[Key] = Set.empty[Key],
+    inserting: Set[Key] = Set.empty[Key],
+    removing: Set[Key] = Set.empty[Key],
+    getKey: A => Key
 ) {
 
   def updated(values: A*)(implicit dummy: DummyImplicit): TransitionSet[A, Key] =
     updated(values)
 
   def updated(values: Seq[A]): TransitionSet[A, Key] = {
-    val valuesWithKeys: Seq[(Key, A)]  = values.map(a => (getKey(a), a))
+    val valuesWithKeys: Seq[(Key, A)]  = values.map { a => (getKey(a), a) }
     val valuesWithKeysMap: Map[Key, A] = valuesWithKeys.toMap
-    val newOrderedValues               = valuesWithKeys.filterNot(kv => contains(kv._1))
+    val newOrderedValues               = valuesWithKeys.filterNot { kv => contains(kv._1) }
 
     val nextKeys    = valuesWithKeys.map(_._1).toSet
     val newKeys     = nextKeys -- contains
@@ -46,7 +46,7 @@ case class TransitionSet[A, Key](
   def remove(keys: Key*): TransitionSet[A, Key] = {
     val keySet = keys.toSet
     copy(
-      ordered = ordered.filter(kv => keys.contains(kv._1)),
+      ordered = ordered.filter { kv => keys.contains(kv._1) },
       contains = contains -- keySet,
       inserting = inserting -- keySet,
       removing = removing -- keySet
