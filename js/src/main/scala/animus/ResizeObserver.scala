@@ -21,18 +21,18 @@ class ResizeObserver(callback: js.Function1[js.Array[ResizeObserverEntry], Unit]
 object ResizeObserver {
   def resize(element: Element): EventStream[ClientRect] = {
     val bus = new EventBus[ClientRect]
-    val observer = new ResizeObserver({ e =>
+    val observer = new ResizeObserver { e =>
       e.headOption.foreach(e => bus.writer.onNext(e.contentRect))
-    })
+    }
     observer.observe(element.ref)
     bus.events
   }
 
   def resize(element: org.scalajs.dom.raw.Element): EventStream[ClientRect] = {
     val bus = new EventBus[ClientRect]
-    val observer = new ResizeObserver({ e =>
+    val observer = new ResizeObserver { e =>
       e.headOption.foreach(e => bus.writer.onNext(e.contentRect))
-    })
+    }
     observer.observe(element)
     bus.events
   }

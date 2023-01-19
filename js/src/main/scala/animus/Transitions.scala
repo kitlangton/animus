@@ -25,7 +25,7 @@ case class Transition(signal: Signal[TransitionStatus]) {
 
 object Transitions {
   def opacity($visible: Signal[Boolean]): Mod[HtmlElement] =
-    L.opacity <-- $visible.map { if (_) 1.0 else 0 }.spring
+    L.opacity <-- $visible.map(if (_) 1.0 else 0).spring
 
   def height($open: Signal[Boolean]): Mod[HtmlElement] =
     Seq(
@@ -84,7 +84,7 @@ object Transitions {
   )
 
   def transitionList[A, Key, Output](
-      $items: Signal[Seq[A]]
+    $items: Signal[Seq[A]]
   )(getKey: A => Key)(project: (Key, A, Signal[A], Transition) => Output): Signal[Seq[Output]] = {
 
     type ValueMap = Map[Key, (A, TransitionStatus)]
@@ -160,7 +160,7 @@ object Transitions {
 
     $adding.flatMap(_ =>
       $values.map { values =>
-        ordering.toList.flatMap { key => values.get(key) }
+        ordering.toList.flatMap(key => values.get(key))
       }
     )
       .split(v => getKey(v._1)) { (k, init, $a) =>
