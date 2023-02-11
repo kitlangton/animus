@@ -1,6 +1,5 @@
 package example
 
-import com.raquo.airstream.timing.PeriodicEventStream
 import com.raquo.laminar.api.L._
 import animus._
 
@@ -8,12 +7,7 @@ object AnimatedTitle extends Component {
   val activeVar = Var(true)
 
   val $time: Signal[Double] =
-    new PeriodicEventStream[Double](
-      initial = 0.0,
-      next = eventNumber => Some((eventNumber + 1.5, (1000 / 60).toDouble.toInt)),
-      emitInitial = true,
-      resetOnStop = true
-    ).toSignal(0.0)
+    EventStream.periodic(1000 / 60).map(_.toDouble).toSignal(0)
 
   def body: HtmlElement = h1(
     cursor.pointer,

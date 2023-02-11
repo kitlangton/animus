@@ -10,7 +10,7 @@ import scala.util.Random
 
 object Main {
   def main(args: Array[String]): Unit =
-    documentEvents.onDomContentLoaded.foreach { _ =>
+    documentEvents(_.onDomContentLoaded).foreach { _ =>
       val container = document.getElementById("app")
       render(container, body)
     }(unsafeWindowOwner)
@@ -25,31 +25,31 @@ object Main {
     div(
       margin("40px"),
       div(
-        div(
-          opacity <-- Animation.from(0).wait(1000).to(1).run,
-          position.fixed,
-          top("0"),
-          right("0"),
-          fontSize("14px"),
-          opacity(0.6),
-          margin("48px"),
-          a(
-            target("_blank"),
-            fontWeight.bold,
-            textDecoration.none,
-            color("white"),
-            href("https://github.com/kitlangton/animus"),
-            "GITHUB"
-          )
-        ),
+//        div(
+//          opacity <-- Animation.from(0).wait(1000).to(1).run,
+//          position.fixed,
+//          top("0"),
+//          right("0"),
+//          fontSize("14px"),
+//          opacity(0.6),
+//          margin("48px"),
+//          a(
+//            target("_blank"),
+//            fontWeight.bold,
+//            textDecoration.none,
+//            color("white"),
+//            href("https://github.com/kitlangton/animus"),
+//            "GITHUB"
+//          )
+//        ),
         maxWidth("600px"),
         margin("0 auto"),
-//        PerformanceTest.body,
-        AnimatedTitle,
-        TimeWasted,
-        TheBasics,
+        PerformanceTest.body
+//        AnimatedTitle
+//        TimeWasted
+//        TheBasics
 //        AnimateTest
-        AnimateTextExample()
+//        AnimateTextExample()
       )
     )
   }
@@ -59,7 +59,7 @@ object AnimateTest extends Component {
   val numberVar = Var(Set(0, 8, 3))
   override def body: HtmlElement =
     div(
-      windowEvents.onKeyDown.map(_.key.toIntOption.getOrElse(0)) --> { int =>
+      windowEvents(_.onKeyDown).map(_.key.toIntOption.getOrElse(0)) --> { int =>
         numberVar.update(set => if (set(int)) set - int else set + int)
       },
       children <-- numberVar.signal.map(_.toList).splitTransition(identity) { (_, int, $int, transition) =>

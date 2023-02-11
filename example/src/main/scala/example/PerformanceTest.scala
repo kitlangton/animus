@@ -1,7 +1,6 @@
 package example
 
 import animus.SignalOps
-import com.raquo.airstream.timing.PeriodicEventStream
 import com.raquo.laminar.api.L._
 
 import scala.util.Random
@@ -10,12 +9,7 @@ object PerformanceTest {
   val positionVar: Var[Double] = Var(0.0)
 
   def every[A](a: => A, ms: => Int = 300): Signal[A] =
-    new PeriodicEventStream[A](
-      initial = a,
-      next = _ => Some((a, ms)),
-      true,
-      true
-    ).toSignal(a)
+    EventStream.periodic(ms).map(_ => a).toSignal(a)
 
   private var mousePosition = (0.0, 0.0)
 
@@ -42,8 +36,8 @@ object PerformanceTest {
     div(
       margin("40px"),
 //      h1("ANIMUS"),
-      windowEvents.onMouseMove --> { e => mousePosition = e.clientX -> e.clientY },
-      windowEvents.onKeyDown.map(_.key.toIntOption.getOrElse(0).toDouble * 40) --> positionVar,
+      windowEvents(_.onMouseMove) --> { e => mousePosition = e.clientX -> e.clientY },
+      windowEvents(_.onKeyDown).map(_.key.toIntOption.getOrElse(0).toDouble * 40) --> positionVar,
       div(
         position.fixed,
         left("0"),
@@ -53,7 +47,7 @@ object PerformanceTest {
         svg.svg(
           svg.width("100vw"),
           svg.height("100vh"),
-          List.fill(800) {
+          List.fill(1000) {
             randomCube
           }
         )

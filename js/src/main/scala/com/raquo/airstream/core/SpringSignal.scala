@@ -1,21 +1,23 @@
 package com.raquo.airstream.core
 
 import animus.Animatable
-import com.raquo.airstream.common.SingleParentObservable
+import com.raquo.airstream.common.SingleParentSignal
 import org.scalajs.dom
+import org.scalajs.dom.window.requestAnimationFrame
 
-import scala.util.Try
+import scala.scalajs.js
+import scala.util.{Failure, Success, Try}
 
-class SpringSignal[A](override protected val parent: Signal[(A, Option[A])])(implicit animatable: Animatable[A])
+class SpringSignal[A](override protected val parent: Signal[A])(implicit animatable: Animatable[A])
     extends Signal[A]
     with WritableSignal[A]
-    with SingleParentObservable[(A, Option[A]), A] {
+    with SingleParentSignal[A, A] {
 
   private var anim: animatable.Anim = _
   private var animating             = false
 
   def tick(): Unit =
-    dom.window.requestAnimationFrame(step)
+    requestAnimationFrame(step)
 
   override def onStart(): Unit = {
     super.onStart()
@@ -40,31 +42,29 @@ class SpringSignal[A](override protected val parent: Signal[(A, Option[A])])(imp
       tick()
     }
 
-  override protected[airstream] def initialValue: Try[A] = {
+  override protected def currentValueFromParent(): Try[A] = {
     val value = parent.tryNow()
-    value.foreach { case (a, s) =>
-      anim = animatable.toAnim(s getOrElse a, a)
+    value.foreach { a =>
+      anim = animatable.toAnim(a, a)
     }
-    value.map { case (a, s) => s getOrElse a }
+    value
   }
 
   override protected[airstream] val topoRank: Int = Protected.topoRank(parent) + 1
 
   def fireQuick(value: A): Unit = {
-    externalObservers.foreach(_.onNext(value))
     internalObservers.foreach(InternalObserver.onNext(_, value, null))
+    externalObservers.foreach(_.onNext(value))
   }
 
-  override protected[airstream] def onNext(nextValue: (A, Option[A]), transaction: Transaction): Unit = {
-    animatable.update(anim, nextValue._1)
-    if (!animating) {
-      animating = true
-      tick()
+  override protected[airstream] def onTry(nextValue: Try[A], transaction: Transaction): Unit =
+//    println(s"onTry ${nextValue}}")
+    nextValue.foreach { a =>
+      animatable.update(anim, a)
+      if (!animating) {
+        animating = true
+        tick()
+      }
     }
-  }
 
-  override protected[airstream] def onError(nextError: Throwable, transaction: Transaction): Unit = ()
-
-  override protected[airstream] def onTry(nextValue: Try[(A, Option[A])], transaction: Transaction): Unit =
-    nextValue.foreach(onNext(_, null))
 }

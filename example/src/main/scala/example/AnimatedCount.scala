@@ -4,11 +4,12 @@ import com.raquo.laminar.api.L._
 import animus._
 
 case class AnimatedCount($count: Signal[Int]) extends Component {
-  val $digits: Signal[List[(String, Int)]] = $count.map(_.toString.split("").reverse.zipWithIndex.reverse.toList)
+  val $digits: Signal[List[(String, Int)]] =
+    $count.map(_.toString.split("").reverse.zipWithIndex.reverse.toList)
 
   override def body: HtmlElement =
     div(
-      fontWeight(1000),
+      fontWeight("1000"),
       fontSize("24px"),
       padding("0 4px"),
       color("orange"),

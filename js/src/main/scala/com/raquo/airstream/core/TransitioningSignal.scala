@@ -1,7 +1,7 @@
 package com.raquo.airstream.core
 
 import animus.{OrderedSet, Transition, TransitionSet, TransitionStatus}
-import com.raquo.airstream.common.{InternalNextErrorObserver, SingleParentObservable}
+import com.raquo.airstream.common.SingleParentSignal
 import com.raquo.airstream.state.Var
 
 import scala.collection.mutable
@@ -9,15 +9,23 @@ import scala.scalajs.js.timers.{SetTimeoutHandle, clearTimeout, setTimeout}
 import scala.util.Try
 
 class TransitioningSignal[Input, Output, Key](
-    override protected[this] val parent: Signal[Seq[Input]],
-    getKey: Input => Key,
-    project: (Key, Input, Signal[Input], Transition) => Output
+  override protected[this] val parent: Signal[Seq[Input]],
+  getKey: Input => Key,
+  project: (Key, Input, Signal[Input], Transition) => Output
 ) extends Signal[Seq[Output]]
     with WritableSignal[Seq[Output]]
-    with SingleParentObservable[Seq[Input], Seq[Output]]
-    with InternalNextErrorObserver[Seq[Input]] {
+    with SingleParentSignal[Seq[Input], Seq[Output]] {
 
-  override protected[this] def initialValue: Try[Seq[Output]] = parent.tryNow().map(memoizedProject(_, true))
+  override protected def currentValueFromParent(): Try[Seq[Output]] =
+    parent.tryNow().map(memoizedProject(_, true))
+
+  override def onTry(nextParentValue: Try[Seq[Input]], transaction: Transaction): Unit =
+    nextParentValue match {
+      case scala.util.Success(nextInputs) =>
+        fireValue(memoizedProject(nextInputs), transaction)
+      case scala.util.Failure(nextError) =>
+        fireError(nextError, transaction)
+    }
 
   override protected[airstream] val topoRank: Int = Protected.topoRank(parent) + 1
 
@@ -33,15 +41,7 @@ class TransitioningSignal[Input, Output, Key](
     super.onStop()
   }
 
-  override protected[airstream] def onNext(nextInputs: Seq[Input], transaction: Transaction): Unit = {
-    fireValue(memoizedProject(nextInputs), transaction)
-  }
-
   def refireMemoized(): Unit = fireValue(ordered.toList.map(memoized(_)._1), null)
-
-  override protected[airstream] def onError(nextError: Throwable, transaction: Transaction): Unit = {
-    fireError(nextError, transaction)
-  }
 
   var transitionSet: TransitionSet[Input, Input] = TransitionSet.empty[Input]
 
@@ -90,7 +90,7 @@ class TransitioningSignal[Input, Output, Key](
       timeoutHandles(key) = handle
     }
 
-    ordered.toList.map { memoized(_)._1 }
+    ordered.toList.map(memoized(_)._1)
   }
 
 }

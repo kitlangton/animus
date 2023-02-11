@@ -9,8 +9,7 @@ case class AnimateTextExample() extends Component {
   val $characters: Signal[List[(String, Int)]] = textVar.signal.map(_.split("").zipWithIndex.toList)
   val $isEmpty: Signal[Boolean]                = textVar.signal.map(_.isEmpty)
 
-  val keyEvents = windowEvents.onKeyDown.map(_.key) --> {
-
+  val keyEvents = windowEvents(_.onKeyDown).map(_.key) --> {
     case "Backspace"       => textVar.update(_.dropRight(1))
     case " "               => textVar.update(_ + "•")
     case "Enter"           => textVar.update(_ + "¶")
@@ -19,7 +18,7 @@ case class AnimateTextExample() extends Component {
     case _                 => ()
   }
 
-  def body: Div = {
+  def body: Div =
     div(
       keyEvents,
       div(
@@ -31,7 +30,7 @@ case class AnimateTextExample() extends Component {
           transformOrigin("bottom left"),
           transform <-- $isEmpty.map {
             if (_) 1.0 else 0.6
-          }.spring.map { s => s"scale($s)" },
+          }.spring.map(s => s"scale($s)"),
           FadeInWords("TYPE SOMETHING.", 3500)
         ),
         children <-- $characters.splitTransition(identity) { case (_, (char, _), _, transition) =>
@@ -47,7 +46,6 @@ case class AnimateTextExample() extends Component {
       ),
       codeExample
     )
-  }
 
   def codeExample: Div = {
     val showSource = Var(false)
