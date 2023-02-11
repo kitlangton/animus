@@ -1,6 +1,6 @@
 package animus
 
-import magnolia._
+import magnolia1._
 
 object DeriveAnimatable {
   type Typeclass[T] = Animatable[T]

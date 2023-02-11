@@ -99,8 +99,8 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
           Seq("com.softwaremill.magnolia1_3" %%% "magnolia" % "1.1.5")
         case _ =>
           Seq(
-            "com.propensive"      %%% "magnolia"      % "0.17.0",
-            scalaOrganization.value % "scala-reflect" % scalaVersion.value
+            "com.softwaremill.magnolia1_2" %%% "magnolia"      % "1.1.3",
+            scalaOrganization.value          % "scala-reflect" % scalaVersion.value
           )
       }
     }
