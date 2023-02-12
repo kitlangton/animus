@@ -4,7 +4,7 @@ trait Animatable[A] {
 
   type Anim
 
-  def toAnim(start: A, value: A): Anim
+  def toAnim(value: A, configure: Spring => Spring): Anim
 
   def fromAnim(anim: Anim): A
 

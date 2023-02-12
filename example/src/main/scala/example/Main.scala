@@ -44,15 +44,56 @@ object Main {
 //        ),
         maxWidth("600px"),
         margin("0 auto"),
-        PerformanceTest.body
-//        AnimatedTitle
-//        TimeWasted
-//        TheBasics
-//        AnimateTest
+        BackAndForthForeverTest
+//        PerformanceTest.body
+//        AnimatedTitle,
+//        TimeWasted,
+//        TheBasics,
+//        AnimateTest,
 //        AnimateTextExample()
       )
     )
   }
+}
+
+object BackAndForthForeverTest extends Component {
+
+  def square(configure: Spring => Spring): Div = {
+    val $x: Signal[Double] =
+      EventStream
+        .periodic(1000)
+        .toSignal(0)
+        .map {
+          case x if x % 2 == 0 => 400.0
+          case _ => 0.0
+        }
+        .spring(configure)
+
+    def randomColor =
+      List("red", "green", "blue", "yellow", "purple", "orange", "pink", "chartreuse", "green")(Random.nextInt(9))
+
+    div(
+      left <-- $x.map(_.toString + "px"),
+      width("50px"),
+      height("50px"),
+      position.relative,
+      backgroundColor(randomColor),
+      borderRadius("4px")
+    )
+  }
+
+  override def body: HtmlElement =
+    div(
+      display.flex,
+      flexDirection.column,
+      styleProp("gap")("8px"),
+      square(identity),
+      square(_.wobbly),
+      square(_.gentle),
+      square(_.stiff),
+      square(_.slow),
+      square(_.molasses)
+    )
 }
 
 object AnimateTest extends Component {

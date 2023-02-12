@@ -9,8 +9,8 @@ object TimeWasted extends Component {
   val $count: Signal[Int] =
     EventStream.periodic(1000).toSignal(0)
 
-//  val $degrees: Signal[Double] =
-//    $count.scanLeft(_ => 0.0)((acc, _) => acc + (Random.nextDouble() * 600))
+  val $degrees: Signal[Double] =
+    $count.scanLeft(_ => 0.0)((acc, _) => acc + (Random.nextDouble() * 600))
 
   def body: Div = div(
     marginTop("24px"),
@@ -33,9 +33,9 @@ object TimeWasted extends Component {
         height("30px"),
         background("#333"),
         borderRadius("4px"),
-//        transform <-- $degrees.map { deg =>
-//          s"rotate(${deg}deg)"
-//        },
+        transform <-- $degrees.map { deg =>
+          s"rotate(${deg}deg)"
+        },
         transformOrigin("bottom")
       ),
       div(
@@ -44,9 +44,9 @@ object TimeWasted extends Component {
         height("30px"),
         borderRadius("4px"),
         background("orange"),
-//        transform <-- $degrees.spring.map { deg =>
-//          s"rotate(${deg}deg)"
-//        },
+        transform <-- $degrees.spring.map { deg =>
+          s"rotate(${deg}deg)"
+        },
         transformOrigin("bottom")
       )
     ),
@@ -56,12 +56,16 @@ object TimeWasted extends Component {
       display.flex,
       height("20px"),
       alignItems.center,
-      fontStyle.italic,
+//      fontStyle.italic,
       div(
         opacity(0.6),
         s"YOU'VE WASTED${nbsp}"
       ),
-      AnimatedCount($count),
+      AnimatedCount($count).amend(
+        position.relative,
+        top("-1px"),
+        left("-1px")
+      ),
       div(
         opacity(0.6),
         s"${nbsp}SECOND",

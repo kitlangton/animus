@@ -1,6 +1,6 @@
 package com.raquo.airstream.core
 
-import animus.Animatable
+import animus.{Animatable, Spring}
 import com.raquo.airstream.common.SingleParentSignal
 import org.scalajs.dom
 import org.scalajs.dom.window.requestAnimationFrame
@@ -8,8 +8,9 @@ import org.scalajs.dom.window.requestAnimationFrame
 import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 
-class SpringSignal[A](override protected val parent: Signal[A])(implicit animatable: Animatable[A])
-    extends Signal[A]
+class SpringSignal[A](override protected val parent: Signal[A], configureSpring: Spring => Spring)(implicit
+  animatable: Animatable[A]
+) extends Signal[A]
     with WritableSignal[A]
     with SingleParentSignal[A, A] {
 
@@ -45,7 +46,7 @@ class SpringSignal[A](override protected val parent: Signal[A])(implicit animata
   override protected def currentValueFromParent(): Try[A] = {
     val value = parent.tryNow()
     value.foreach { a =>
-      anim = animatable.toAnim(a, a)
+      anim = animatable.toAnim(a, configureSpring)
     }
     value
   }

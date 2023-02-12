@@ -9,7 +9,8 @@ trait AnimatableImplicits {
       anim.isDone
     }
 
-    override def toAnim(start: Double, value: Double): Spring = Spring.fromValueAndTarget(start, value)
+    override def toAnim(value: Double, configure: Spring => Spring): Spring =
+      configure(Spring.fromValue(value))
 
     override def update(anim: Spring, newValue: Double): Unit = anim.setTarget(newValue)
 
@@ -26,8 +27,8 @@ trait AnimatableImplicits {
         d1 && d2
       }
 
-      override def toAnim(start: (A, B), value: (A, B)): (a.Anim, b.Anim) =
-        (a.toAnim(start._1, value._1), b.toAnim(start._2, value._2))
+      override def toAnim(value: (A, B), configure: Spring => Spring): (a.Anim, b.Anim) =
+        (a.toAnim(value._1, configure), b.toAnim(value._2, configure))
 
       override def update(anim: (a.Anim, b.Anim), newValue: (A, B)): Unit = {
         a.update(anim._1, newValue._1)
@@ -52,8 +53,8 @@ trait AnimatableImplicits {
         d1 && d2 && d3
       }
 
-      override def toAnim(start: (A, B, C), value: (A, B, C)): (a.Anim, b.Anim, c.Anim) =
-        (a.toAnim(start._1, value._1), b.toAnim(start._2, value._2), c.toAnim(start._3, value._3))
+      override def toAnim(value: (A, B, C), configure: Spring => Spring): (a.Anim, b.Anim, c.Anim) =
+        (a.toAnim(value._1, configure), b.toAnim(value._2, configure), c.toAnim(value._3, configure))
 
       override def update(anim: (a.Anim, b.Anim, c.Anim), newValue: (A, B, C)): Unit = {
         a.update(anim._1, newValue._1)
@@ -72,8 +73,8 @@ trait AnimatableImplicits {
       override def tick(anim: Iterable[a.Anim], time: Double): Boolean =
         anim.map(a.tick(_, time)).reduce(_ && _)
 
-      override def toAnim(start: Iterable[A], value: Iterable[A]): Iterable[a.Anim] =
-        start zip value map { case (s, v) => a.toAnim(s, v) }
+      override def toAnim(value: Iterable[A], configure: Spring => Spring): Iterable[a.Anim] =
+        value.map(v => a.toAnim(v, configure))
 
       override def update(anim: Iterable[a.Anim], newValue: Iterable[A]): Unit =
         anim zip newValue foreach { case (an, nv) => a.update(an, nv) }
