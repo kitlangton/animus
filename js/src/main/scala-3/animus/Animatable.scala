@@ -8,7 +8,7 @@ trait Animatable[A] {
 
   type A0 = A
 
-  def toAnim(start: A, value: A): Anim
+  def toAnim(value: A, configure: Spring => Spring): Anim
 
   def fromAnim(anim: Anim): A
 
@@ -23,12 +23,12 @@ object Animatable extends AutoDerivation[Animatable] with AnimatableImplicits {
     new Animatable[T] {
       override type Anim = Array[Any]
 
-      override def toAnim(start: T, value: T): Array[Any] = {
+      override def toAnim(value: T, configure: Spring => Spring): Array[Any] = {
         var i     = -1
         val anims = Array.ofDim[Any](ctx.params.length)
         ctx.params.foreach { param =>
           i += 1
-          anims(i) = param.typeclass.toAnim(param.deref(start), param.deref(value))
+          anims(i) = param.typeclass.toAnim(param.deref(value), configure)
         }
         anims
       }
@@ -74,9 +74,9 @@ object Animatable extends AutoDerivation[Animatable] with AnimatableImplicits {
        *  won't work by saving the value and using it to multiplex!  Is this OK? */
       var valueOpt: Option[T] = None
 
-      override def toAnim(start: T, value: T): Array[Any] = {
+      override def toAnim(value: T, configure: Spring => Spring): Array[Any] = {
         valueOpt = Some(value)
-        ctx.choose(value)(sub => sub.typeclass.toAnim(sub.cast(start), sub.cast(value)).asInstanceOf[Anim])
+        ctx.choose(value)(sub => sub.typeclass.toAnim(sub.cast(value), configure).asInstanceOf[Anim])
       }
 
       override def tick(anim: Array[Any], time: Double): Boolean =
