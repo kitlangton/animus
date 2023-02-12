@@ -1,8 +1,15 @@
 package example
 
+import animus.DeriveAnimatable.Typeclass
 import animus._
 import com.raquo.laminar.api.L._
 import example.components.{FadeInWords, codeBlock}
+
+final case class MyDouble(d1: Double, d2: Double)
+
+object MyDouble {
+  implicit val animatable: Animatable[MyDouble] = DeriveAnimatable.gen[MyDouble]
+}
 
 case class AnimateTextExample() extends Component {
   val textVar                                  = Var("")

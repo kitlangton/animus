@@ -5,7 +5,7 @@ import magnolia1._
 object DeriveAnimatable {
   type Typeclass[T] = Animatable[T]
 
-  def combine[T](ctx: CaseClass[Animatable, T]): Animatable[T] =
+  def join[T](ctx: CaseClass[Animatable, T]): Animatable[T] =
     new Animatable[T] {
       override type Anim = Array[Any]
 
@@ -52,5 +52,5 @@ object DeriveAnimatable {
 
     }
 
-  implicit def gen[T]: Typeclass[T] = macro Magnolia.gen[T]
+  implicit def gen[T]: Animatable[T] = macro Magnolia.gen[T]
 }
