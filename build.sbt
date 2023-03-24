@@ -92,7 +92,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq(
-      "com.raquo" %%% "laminar" % "15.0.0"
+      "com.raquo" %%% "laminar" % "15.0.1"
     ) ++ {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) =>
