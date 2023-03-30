@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L._
 import animus._
 
 package object components {
-  def FadeInWords(string: String, delay: Int = 0): Modifier[HtmlElement] = {
+  def FadeInWords(string: String, delay: Int = 0): Modifier[HtmlElement] =
     string.split(" ").zipWithIndex.toList.map { case (word, idx) =>
       val $opacity = Animation.from(0).wait(delay + 150 * idx).to(1).run
       div(
@@ -18,19 +18,18 @@ package object components {
         }
       )
     }
-  }
 
   def codeBlock(
-      codeString: String = "",
-      highlights: Signal[Set[Int]] = Val(Set.empty),
-      language: String = "scala"
+    codeString: String = "",
+    highlights: Signal[Set[Int]] = Val(Set.empty),
+    language: String = "scala"
   ): HtmlElement =
     codeBlockSignal(Val(codeString), highlights, language)
 
   def codeBlockSignal(
-      codeSignal: Signal[String],
-      highlights: Signal[Set[Int]] = Val(Set.empty),
-      language: String = "scala"
+    codeSignal: Signal[String],
+    highlights: Signal[Set[Int]] = Val(Set.empty),
+    language: String = "scala"
   ): HtmlElement =
     pre(
       div(
@@ -44,11 +43,10 @@ package object components {
         div(
           code(
             children <-- Transitions.transitionList(
-              codeSignal
-                .map { code =>
-                  val result = Highlight.highlight(language, code.trim).value
-                  result.split("\n").toList.zipWithIndex
-                }
+              codeSignal.map { code =>
+                val result = Highlight.highlight(language, code.trim).value
+                result.split("\n").toList.zipWithIndex
+              }
             )(identity) { (_, value, $value, transition) =>
               val (code, idx) = value
               div(
