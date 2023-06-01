@@ -2,11 +2,9 @@ package com.raquo.airstream.core
 
 import animus.{Animatable, Spring}
 import com.raquo.airstream.common.SingleParentSignal
-import org.scalajs.dom
 import org.scalajs.dom.window.requestAnimationFrame
 
-import scala.scalajs.js
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class SpringSignal[A](override protected val parent: Signal[A], configureSpring: Spring => Spring)(implicit
   animatable: Animatable[A]
@@ -17,8 +15,9 @@ class SpringSignal[A](override protected val parent: Signal[A], configureSpring:
   private var anim: animatable.Anim = _
   private var animating             = false
 
-  def tick(): Unit =
-    requestAnimationFrame(step)
+  def tick(): Unit = {
+    val _ = requestAnimationFrame(step)
+  }
 
   override def onStart(): Unit = {
     super.onStart()

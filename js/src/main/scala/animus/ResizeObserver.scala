@@ -2,14 +2,14 @@ package animus
 
 import com.raquo.laminar.api.L._
 import org.scalajs.dom
-import org.scalajs.dom.ClientRect
+import org.scalajs.dom.DOMRect
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 
 @js.native
 trait ResizeObserverEntry extends js.Object {
-  def contentRect: ClientRect = js.native
+  def contentRect: DOMRect = js.native
 }
 
 @js.native
@@ -19,8 +19,8 @@ class ResizeObserver(callback: js.Function1[js.Array[ResizeObserverEntry], Unit]
 }
 
 object ResizeObserver {
-  def resize(element: Element): EventStream[ClientRect] = {
-    val bus = new EventBus[ClientRect]
+  def resize(element: Element): EventStream[DOMRect] = {
+    val bus = new EventBus[DOMRect]
     val observer = new ResizeObserver({ e =>
       e.headOption.foreach(e => bus.writer.onNext(e.contentRect))
     })
@@ -28,8 +28,8 @@ object ResizeObserver {
     bus.events
   }
 
-  def resize(element: org.scalajs.dom.raw.Element): EventStream[ClientRect] = {
-    val bus = new EventBus[ClientRect]
+  def resize(element: org.scalajs.dom.Element): EventStream[DOMRect] = {
+    val bus = new EventBus[DOMRect]
     val observer = new ResizeObserver({ e =>
       e.headOption.foreach(e => bus.writer.onNext(e.contentRect))
     })

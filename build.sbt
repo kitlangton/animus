@@ -64,6 +64,41 @@ lazy val root = project
     skip / publish := true
   )
 
+val zioVersion       = "2.0.14"
+val laminarVersion   = "15.0.1"
+val magnolia2Version = "1.1.3"
+val magnolia3Version = "1.3.0"
+
+testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+
+lazy val animus = crossProject(JSPlatform, JVMPlatform)
+  .in(file("."))
+  .settings(
+    commonSettings,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    libraryDependencies += "dev.zio" %%% "zio-test" % zioVersion % Test
+  )
+  .jsSettings(
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+    libraryDependencies ++= Seq(
+      "com.raquo" %%% "laminar" % laminarVersion
+    ) ++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          Seq("com.softwaremill.magnolia1_3" %%% "magnolia" % magnolia3Version)
+        case _ =>
+          Seq(
+            "com.softwaremill.magnolia1_2" %%% "magnolia"      % magnolia2Version,
+            scalaOrganization.value          % "scala-reflect" % scalaVersion.value
+          )
+      }
+    }
+  )
+
+lazy val animusJS  = animus.js
+lazy val animusJVM = animus.jvm
+
 lazy val example = project
   .in(file("example"))
   .dependsOn(animusJS)
@@ -73,38 +108,8 @@ lazy val example = project
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     skip / publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %%% "zio"      % "2.0.8",
-      "dev.zio" %%% "zio-json" % "0.4.2"
+      "dev.zio" %%% "zio"      % zioVersion,
+      "dev.zio" %%% "zio-json" % "0.5.0"
     )
   )
   .enablePlugins(ScalaJSPlugin)
-
-testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
-
-lazy val animus = crossProject(JSPlatform, JVMPlatform)
-  .in(file("."))
-  .settings(
-    commonSettings,
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    libraryDependencies += "dev.zio" %%% "zio-test" % "2.0.10" % Test
-  )
-  .jsSettings(
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-    libraryDependencies ++= Seq(
-      "com.raquo" %%% "laminar" % "15.0.0"
-    ) ++ {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _)) =>
-          Seq("com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.0")
-        case _ =>
-          Seq(
-            "com.softwaremill.magnolia1_2" %%% "magnolia"      % "1.1.3",
-            scalaOrganization.value          % "scala-reflect" % scalaVersion.value
-          )
-      }
-    }
-  )
-
-lazy val animusJS  = animus.js
-lazy val animusJVM = animus.jvm
