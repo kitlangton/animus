@@ -67,7 +67,7 @@ lazy val root = project
 val zioVersion       = "2.0.14"
 val laminarVersion   = "15.0.1"
 val magnolia2Version = "1.1.3"
-val magnolia3Version = "1.3.0"
+val magnolia3Version = "1.3.1"
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
