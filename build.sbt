@@ -65,7 +65,7 @@ lazy val root = project
   )
 
 val zioVersion       = "2.0.14"
-val laminarVersion   = "15.0.1"
+val laminarVersion   = "16.0.0"
 val magnolia2Version = "1.1.3"
 val magnolia3Version = "1.3.0"
 
