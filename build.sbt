@@ -6,7 +6,7 @@ inThisBuild(
     normalizedName     := "animus",
     organization       := "com.kitlangton",
     scalaVersion       := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
+    crossScalaVersions := Seq("2.13.8", "3.3.1"),
     organization       := "io.github.kitlangton",
     homepage           := Some(url("https://github.com/kitlangton/animus")),
     licenses           := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
