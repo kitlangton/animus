@@ -3,8 +3,13 @@ target/
 .jvm/
 .bsp
 .idea
+.bloop
+.metals
 dist
 node_modules
+
+project/project
+project/metals.sbt
 
 js/yarn.lock
 

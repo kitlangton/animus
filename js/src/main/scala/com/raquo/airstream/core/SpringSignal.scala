@@ -4,6 +4,8 @@ import animus.{Animatable, Spring}
 import com.raquo.airstream.common.SingleParentSignal
 import org.scalajs.dom.window.requestAnimationFrame
 
+import scala.scalajs.js
+
 import scala.util.Try
 
 class SpringSignal[A](override protected val parent: Signal[A], configureSpring: Spring => Spring)(implicit
@@ -53,7 +55,14 @@ class SpringSignal[A](override protected val parent: Signal[A], configureSpring:
   override protected[airstream] val topoRank: Int = Protected.topoRank(parent) + 1
 
   def fireQuick(value: A): Unit = {
-    internalObservers.foreach(InternalObserver.onNext(_, value, null))
+    val currentTransaction = Transaction.currentTransaction()
+    val transaction = if (js.isUndefined(currentTransaction)) {
+      new Transaction(_ => ())
+    } else {
+      currentTransaction.asInstanceOf[Transaction]
+    }
+
+    internalObservers.foreach(InternalObserver.onNext(_, value, transaction))
     externalObservers.foreach(_.onNext(value))
   }
 
