@@ -66,7 +66,7 @@ lazy val root = project
 
 val zioVersion       = "2.0.21"
 val laminarVersion   = "16.0.0"
-val magnolia2Version = "1.1.3"
+val magnolia2Version = "1.1.8"
 val magnolia3Version = "1.3.0"
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
@@ -109,7 +109,7 @@ lazy val example = project
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,
-      "dev.zio" %%% "zio-json" % "0.6.0"
+      "dev.zio" %%% "zio-json" % "0.6.2"
     )
   )
   .enablePlugins(ScalaJSPlugin)

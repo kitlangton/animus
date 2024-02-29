@@ -14,3 +14,4 @@ project/metals.sbt
 js/yarn.lock
 
 .DS_Store
+.vscode
