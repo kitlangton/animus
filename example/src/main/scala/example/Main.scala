@@ -2,7 +2,7 @@ package example
 
 import animus._
 import com.raquo.laminar.api.L._
-import example.components.{FadeInWords, codeBlock}
+import example.components.FadeInWords
 import org.scalajs.dom.document
 
 import scala.scalajs.js.timers.setTimeout
@@ -49,7 +49,7 @@ object Main {
 //        AnimatedTitle,
 //        TimeWasted,
 //        TheBasics,
-//        AnimateTest,
+//        AnimateTest
 //        AnimateTextExample()
       )
     )
@@ -58,7 +58,7 @@ object Main {
 
 object BackAndForthForeverTest extends Component {
 
-  def square(configure: Spring => Spring): Div = {
+  def square(configure: SpringConfig[Double] => SpringConfig[Double]): Div = {
     val $x: Signal[Double] =
       EventStream
         .periodic(1000)
@@ -198,22 +198,22 @@ object TheBasics extends Component {
             left <-- $double.spring.map(_.toInt).px
           ),
           marginBottom("12px")
-        ),
-        codeBlock(
-          """
-val $position : Signal[Double] = ???
- 
-val box = 
-  Box(
-    left <-- $position.px
-  )
-  
-val circle = 
-  Circle(
-    left <-- $position.spring.px
-  )
-          """.trim
         )
+//        codeBlock(
+//          """
+//val $position : Signal[Double] = ???
+//
+//val box =
+//  Box(
+//    left <-- $position.px
+//  )
+//
+//val circle =
+//  Circle(
+//    left <-- $position.spring.px
+//  )
+//          """.trim
+//        )
       )
     )
   }

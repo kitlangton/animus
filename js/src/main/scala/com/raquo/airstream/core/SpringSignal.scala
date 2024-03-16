@@ -3,17 +3,22 @@ package com.raquo.airstream.core
 import animus.{Animatable, Spring}
 import com.raquo.airstream.common.SingleParentSignal
 import org.scalajs.dom.window.requestAnimationFrame
+import animus.VectorArithmetic
 
 import scala.util.Try
+import animus.SpringConfig
 
-class SpringSignal[A](override protected val parent: Signal[A], configureSpring: Spring => Spring)(implicit
-  animatable: Animatable[A]
+class SpringSignal[A](
+  override protected val parent: Signal[A],
+  configureSpring: SpringConfig[A] => SpringConfig[A]
+)(implicit
+  vectorArithmetic: VectorArithmetic[A]
 ) extends Signal[A]
     with WritableSignal[A]
     with SingleParentSignal[A, A] {
 
-  private var anim: animatable.Anim = _
-  private var animating             = false
+  private var spring: SpringConfig[A] = _
+  private var animating               = false
 
   def tick(): Unit = {
     val _ = requestAnimationFrame(step)
@@ -34,18 +39,16 @@ class SpringSignal[A](override protected val parent: Signal[A], configureSpring:
 
   private val step: scalajs.js.Function1[Double, Unit] = (t: Double) =>
     if (animating) {
-      val isDone = animatable.tick(anim, t)
-      fireQuick(animatable.fromAnim(anim))
-      if (isDone) {
-        animating = false
-      }
-      tick()
+      val isDone = spring.update(t)
+      fireQuick(spring.value)
+      if (isDone) { animating = false }
+      requestAnimationFrame(step)
     }
 
   override protected def currentValueFromParent(): Try[A] = {
     val value = parent.tryNow()
     value.foreach { a =>
-      anim = animatable.toAnim(a, configureSpring)
+      spring = configureSpring(SpringConfig.make(a))
     }
     value
   }
@@ -56,9 +59,8 @@ class SpringSignal[A](override protected val parent: Signal[A], configureSpring:
     new Transaction(fireValue(value, _))
 
   override protected[airstream] def onTry(nextValue: Try[A], transaction: Transaction): Unit =
-//    println(s"onTry ${nextValue}}")
     nextValue.foreach { a =>
-      animatable.update(anim, a)
+      spring.setTarget(a)
       if (!animating) {
         animating = true
         tick()

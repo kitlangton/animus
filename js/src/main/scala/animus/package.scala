@@ -8,10 +8,10 @@ package object animus {
   implicit final class SignalOps[A](private val self: Signal[A]) extends AnyVal {
     def px: Signal[String] = self.map(x => s"${x}px")
 
-    def spring(implicit animatable: Animatable[A]): Signal[A] =
+    def spring(implicit v: VectorArithmetic[A]): Signal[A] =
       new SpringSignal[A](self, identity)
 
-    def spring(configureSpring: Spring => Spring)(implicit animatable: Animatable[A]): Signal[A] =
+    def spring(configureSpring: SpringConfig[A] => SpringConfig[A])(implicit v: VectorArithmetic[A]): Signal[A] =
       new SpringSignal[A](self, configureSpring)
 
     def splitOneTransition[Key, Out](key: A => Key)(project: (Key, A, Signal[A], Transition) => Out): Signal[Seq[Out]] =
@@ -24,7 +24,7 @@ package object animus {
   }
 
   implicit final class EventStreamOps[A](private val self: EventStream[A]) extends AnyVal {
-    def px: EventStream[String]                                              = self.map(x => s"${x}px")
-    def spring(initial: => A)(implicit animatable: Animatable[A]): Signal[A] = self.startWith(initial).spring
+    def px: EventStream[String]                                           = self.map(x => s"${x}px")
+    def spring(initial: => A)(implicit v: VectorArithmetic[A]): Signal[A] = self.startWith(initial).spring
   }
 }
