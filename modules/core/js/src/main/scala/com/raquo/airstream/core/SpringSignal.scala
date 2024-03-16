@@ -9,38 +9,33 @@ import animus.Animator
 
 import scala.collection.mutable
 
-
-
 class SpringSignal[A](
-  override protected val parent: Signal[A],
-  configureSpring: Animator[A] => Animator[A]
+    override protected val parent: Signal[A],
+    configureSpring: Animator[A] => Animator[A]
 )(implicit
-  vectorArithmetic: VectorArithmetic[A]
+    vectorArithmetic: VectorArithmetic[A]
 ) extends Signal[A]
     with WritableSignal[A]
-    with SingleParentSignal[A, A] {
+    with SingleParentSignal[A, A]:
 
   private var spring: Animator[A] = _
-  var animationId: Int                = -1
+  var animationId: Int            = -1
 
-  override def onStart(): Unit = {
+  override def onStart(): Unit =
     super.onStart()
     animationId = AnimationManager.addAnimation(spring)
-  }
 
-  override def onStop(): Unit = {
+  override def onStop(): Unit =
     super.onStop()
     AnimationManager.removeAnimation(animationId)
-  }
 
-  override protected def currentValueFromParent(): Try[A] = {
+  override protected def currentValueFromParent(): Try[A] =
     val value = parent.tryNow()
     value.foreach { a =>
       spring = configureSpring(Animator.make(a))
       spring.callback = fireQuick
     }
     value
-  }
 
   override protected[airstream] val topoRank: Int = Protected.topoRank(parent) + 1
 
@@ -50,10 +45,7 @@ class SpringSignal[A](
   override protected[airstream] def onTry(nextValue: Try[A], transaction: Transaction): Unit =
     nextValue.foreach { a =>
       spring.setTarget(a)
-      if (spring.isDone) {
+      if spring.isDone then
         spring.isDone = false
         AnimationManager.addAnimation(spring)
-      }
     }
-
-}

@@ -76,10 +76,14 @@ lazy val root = project
   )
 
 lazy val animus = crossProject(JSPlatform)
-  .in(file("."))
+  .in(file("modules/core"))
   .settings(
+    name := "animus",
     commonSettings,
-    libraryDependencies += "dev.zio" %%% "zio-test" % zioVersion % Test
+    libraryDependencies ++= Seq(
+      "dev.zio"              %%% "zio-test"  % zioVersion % Test,
+      "io.github.kitlangton" %%% "quotidian" % "0.0.14"
+    )
   )
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },

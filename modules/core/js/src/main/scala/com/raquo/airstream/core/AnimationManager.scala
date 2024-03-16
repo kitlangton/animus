@@ -24,8 +24,10 @@ object AnimationManager:
 
   var lastTick: Double = 0
 
+  val max = 1000.0 / 30
+
   val tick: scalajs.js.Function1[Double, Unit] = n =>
-    val delta: Double        = (n - lastTick) min 2600.0
+    val delta: Double        = (n - lastTick) min max
     val deltaSeconds: Double = delta / 1_000.0
     lastTick = n
 

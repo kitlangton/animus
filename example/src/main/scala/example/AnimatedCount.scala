@@ -1,9 +1,9 @@
 package example
 
-import com.raquo.laminar.api.L._
-import animus._
+import com.raquo.laminar.api.L.*
+import animus.*
 
-case class AnimatedCount($count: Signal[Int]) extends Component {
+case class AnimatedCount($count: Signal[Int]) extends Component:
   val $digits: Signal[List[(String, Int)]] =
     $count.map(_.toString.split("").reverse.zipWithIndex.reverse.toList)
 
@@ -30,4 +30,3 @@ case class AnimatedCount($count: Signal[Int]) extends Component {
         )
       }
     )
-}
