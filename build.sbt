@@ -74,7 +74,10 @@ lazy val commonSettings = Seq(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(animusJS, animusJVM)
+  .aggregate(
+    animusJS
+//    animusJVM
+  )
   .settings(commonSettings)
   .settings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
@@ -83,7 +86,7 @@ lazy val root = project
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
-lazy val animus = crossProject(JSPlatform, JVMPlatform)
+lazy val animus = crossProject(JSPlatform)
   .in(file("."))
   .settings(
     commonSettings,
@@ -96,8 +99,8 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq("com.raquo" %%% "laminar" % laminarVersion)
   )
 
-lazy val animusJS  = animus.js
-lazy val animusJVM = animus.jvm
+lazy val animusJS = animus.js
+//lazy val animusJVM = animus.jvm
 
 lazy val example = project
   .in(file("example"))
