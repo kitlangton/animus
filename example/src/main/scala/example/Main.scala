@@ -25,32 +25,30 @@ object Main {
     div(
       margin("40px"),
       div(
-//        div(
-//          opacity <-- Animation.from(0).wait(1000).to(1).run,
-//          position.fixed,
-//          top("0"),
-//          right("0"),
-//          fontSize("14px"),
-//          opacity(0.6),
-//          margin("48px"),
-//          a(
-//            target("_blank"),
-//            fontWeight.bold,
-//            textDecoration.none,
-//            color("white"),
-//            href("https://github.com/kitlangton/animus"),
-//            "GITHUB"
-//          )
-//        ),
+        div(
+          opacity <-- Animation.from(0).wait(1000).to(1).run,
+          position.fixed,
+          top("0"),
+          right("0"),
+          fontSize("14px"),
+          opacity(0.6),
+          margin("48px"),
+          a(
+            target("_blank"),
+            fontWeight.bold,
+            textDecoration.none,
+            color("white"),
+            href("https://github.com/kitlangton/animus"),
+            "GITHUB"
+          )
+        ),
         maxWidth("600px"),
         margin("0 auto"),
-        BackAndForthForeverTest
-//        PerformanceTest.body
+//        BackAndForthForeverTest,
+        PerformanceTest.body
 //        AnimatedTitle,
 //        TimeWasted,
-//        TheBasics,
-//        AnimateTest
-//        AnimateTextExample()
+//        TheBasics
       )
     )
   }

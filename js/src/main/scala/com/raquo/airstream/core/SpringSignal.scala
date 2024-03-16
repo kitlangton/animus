@@ -1,12 +1,15 @@
 package com.raquo.airstream.core
 
-import animus.{Animatable, Spring}
 import com.raquo.airstream.common.SingleParentSignal
 import org.scalajs.dom.window.requestAnimationFrame
 import animus.VectorArithmetic
 
 import scala.util.Try
 import animus.SpringConfig
+
+import scala.collection.mutable
+
+
 
 class SpringSignal[A](
   override protected val parent: Signal[A],
@@ -18,37 +21,23 @@ class SpringSignal[A](
     with SingleParentSignal[A, A] {
 
   private var spring: SpringConfig[A] = _
-  private var animating               = false
-
-  def tick(): Unit = {
-    val _ = requestAnimationFrame(step)
-  }
+  var animationId: Int                = -1
 
   override def onStart(): Unit = {
     super.onStart()
-    if (!animating) {
-      animating = true
-      tick()
-    }
+    animationId = AnimationManager.addAnimation(spring)
   }
 
   override def onStop(): Unit = {
     super.onStop()
-    animating = false
+    AnimationManager.removeAnimation(animationId)
   }
-
-  private val step: scalajs.js.Function1[Double, Unit] = (t: Double) =>
-    if (animating) {
-      val isDone = spring.update(t)
-      fireQuick(spring.value)
-      if (isDone) { animating = false }
-      requestAnimationFrame(step)
-    }
 
   override protected def currentValueFromParent(): Try[A] = {
     val value = parent.tryNow()
     value.foreach { a =>
       spring = configureSpring(SpringConfig.make(a))
+      spring.callback = fireQuick
     }
     value
   }
@@ -61,9 +50,9 @@ class SpringSignal[A](
   override protected[airstream] def onTry(nextValue: Try[A], transaction: Transaction): Unit =
     nextValue.foreach { a =>
       spring.setTarget(a)
-      if (!animating) {
-        animating = true
-        tick()
+      if (spring.isDone) {
+        spring.isDone = false
+        AnimationManager.addAnimation(spring)
       }
     }
 

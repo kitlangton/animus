@@ -1,5 +1,7 @@
 package animus
 
+import org.scalajs.dom.window.requestAnimationFrame
+
 final class SpringConfig[V](
   var value: V,
   var velocity: V,
@@ -11,8 +13,11 @@ final class SpringConfig[V](
   val speed: Double = 1
 )(implicit V: VectorArithmetic[V]) {
 
-  def update(deltaSeconds: Double): Boolean = {
-    val deltaSeconds = (1.0 / 140.0) * speed
+  var isDone: Boolean     = false
+  var callback: V => Unit = { _ => () }
+
+  def update(deltaSeconds: Double): Unit = {
+    val deltaSeconds = (1.0 / 120.0) * speed
     val displacement = V.subtract(value, targetValue)
     val springForce  = V.scaledBy(displacement, -stiffness)
     val dampingForce = V.scaledBy(velocity, damping)
@@ -23,8 +28,9 @@ final class SpringConfig[V](
     value = V.add(value, V.scaledBy(velocity, deltaSeconds))
 
     // Return true if the animation is "settled"
-    V.magnitudeSquared(displacement) < epsilon &&
-    V.magnitudeSquared(velocity) < epsilon
+    callback(value)
+    isDone = V.magnitudeSquared(displacement) < epsilon &&
+      V.magnitudeSquared(velocity) < epsilon
   }
 
   def setTarget(newTarget: V): Unit =
