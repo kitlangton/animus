@@ -2,7 +2,7 @@ package animus
 
 import com.raquo.airstream.core.Signal
 import com.raquo.airstream.state.Var
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L
 
 import scala.collection.mutable
@@ -10,7 +10,7 @@ import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
 import scala.scalajs.js.timers.SetTimeoutHandle
 
-case class Transition(signal: Signal[TransitionStatus]) {
+case class Transition(signal: Signal[TransitionStatus]):
   lazy val $isActive: Signal[Boolean] = signal.map(_.isActive)
 
   lazy val opacity: Mod[HtmlElement] =
@@ -21,35 +21,42 @@ case class Transition(signal: Signal[TransitionStatus]) {
 
   lazy val height: Mod[HtmlElement] =
     Transitions.height($isActive)
-}
 
-object Transitions {
+  lazy val blur: Mod[HtmlElement] =
+    Transitions.blur($isActive)
+
+object Transitions:
   def opacity($visible: Signal[Boolean]): Mod[HtmlElement] =
-    L.opacity <-- $visible.map(if (_) 1.0 else 0).spring
+    L.opacity <-- $visible.map(if _ then 1.0 else 0).spring
 
   def height($open: Signal[Boolean]): Mod[HtmlElement] =
     Seq(
       overflowY.hidden,
       onMountBind { (el: MountContext[HtmlElement]) =>
         L.maxHeight <-- $open.map {
-          if (_)
-            el.thisNode.ref.scrollHeight.toDouble
-          else
-            0.0
+          if _ then el.thisNode.ref.scrollHeight.toDouble
+          else 0.0
         }.spring.px
       }
     )
+
+  def blur($open: Signal[Boolean]): Mod[HtmlElement] =
+    styleProp("filter") <-- $open.map(if _ then 0.0 else 5.0).spring.map { blur =>
+      s"blur(${blur}px)"
+    }
 
   def width($open: Signal[Boolean]): Mod[HtmlElement] =
     Seq(
       overflowX.hidden,
       onMountBind { (el: MountContext[HtmlElement]) =>
-        L.maxWidth <-- $open.map {
-          if (_)
-            el.thisNode.ref.scrollWidth.toDouble
-          else
-            0.0
+        L.maxWidth <-- $open.map { open =>
+          val width =
+            if open then el.thisNode.ref.scrollWidth.toDouble
+            else 0.0
+          println(s"OPEN: ${open} WIDTH: ${width}")
+          width
         }.spring.px
+
       }
     )
 
@@ -62,7 +69,7 @@ object Transitions {
         .toSignal(0.0)
 
       maxHeight <-- $isVisible.flatMap { b =>
-        if (b) { $height }
+        if b then $height
         else Val(0.0)
       }.spring.px
     }
@@ -77,15 +84,15 @@ object Transitions {
         .toSignal(0.0)
 
       maxWidth <-- $isVisible.flatMap { b =>
-        if (b) { $width }
+        if b then $width
         else Val(0.0)
       }.spring.px
     }
   )
 
   def transitionList[A, Key, Output](
-    $items: Signal[Seq[A]]
-  )(getKey: A => Key)(project: (Key, A, Signal[A], Transition) => Output): Signal[Seq[Output]] = {
+      $items: Signal[Seq[A]]
+  )(getKey: A => Key)(project: (Key, A, Signal[A], Transition) => Output): Signal[Seq[Output]] =
 
     type ValueMap = Map[Key, (A, TransitionStatus)]
     val valueMap: Var[ValueMap] = Var(Map.empty[Key, (A, TransitionStatus)])
@@ -99,10 +106,9 @@ object Transitions {
     def cancelTimer(key: Key): Unit =
       timerMap.get(key).foreach(handle => js.timers.clearTimeout(handle))
 
-    def addTimer(key: Key, ms: Int = 0)(body: => Unit): Unit = {
+    def addTimer(key: Key, ms: Int = 0)(body: => Unit): Unit =
       cancelTimer(key)
       timerMap(key) = js.timers.setTimeout(ms)(body)
-    }
 
     val $values = valueMap.signal
 
@@ -120,13 +126,11 @@ object Transitions {
         val key = getKey(x)
         newKeys.add(key)
 
-        if (!allKeys.contains(key)) {
-          allKeys.add(key)
-        }
+        if !allKeys.contains(key) then allKeys.add(key)
 
         cancelTimer(key)
 
-        current.get(key) match {
+        current.get(key) match
           case Some((_, TransitionStatus.Removing)) =>
             addValue(key, x, TransitionStatus.Active)
           case Some((_, status)) =>
@@ -136,11 +140,10 @@ object Transitions {
             addTimer(key) {
               valueMap.update(_.updated(key, x -> TransitionStatus.Active))
             }
-        }
       }
 
       (allKeys diff newKeys).foreach { key =>
-        current.get(key) match {
+        current.get(key) match
           case Some((x, status)) if status != TransitionStatus.Removing =>
             addValue(key, x, TransitionStatus.Removing)
             addTimer(key, 950) {
@@ -149,7 +152,6 @@ object Transitions {
               ordering.remove(key)
             }
           case _ => ()
-        }
       }
 
       val changes = updates.foldLeft[ValueMap => ValueMap](identity)(_ compose _)
@@ -166,6 +168,3 @@ object Transitions {
       .split(v => getKey(v._1)) { (k, init, $a) =>
         project(k, init._1, $a.map(_._1), Transition($a.map(_._2)))
       }
-  }
-
-}

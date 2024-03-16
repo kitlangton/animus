@@ -1,21 +1,22 @@
 package animus
 
 final class Animator[V](
-  var value: V,
-  var velocity: V,
-  var targetValue: V,
-  val stiffness: Double = 157.913,
-  val damping: Double = 25.132,
-  val mass: Double = 1,
-  val epsilon: Double = 0.001,
-  val speed: Double = 1
-)(implicit V: VectorArithmetic[V]) {
+    var value: V,
+    var velocity: V,
+    var targetValue: V,
+    val stiffness: Double = 157.913,
+    val damping: Double = 25.132,
+    val mass: Double = 1,
+    val epsilon: Double = 0.001,
+    val speed: Double = 1
+)(implicit V: VectorArithmetic[V]):
 
   var isDone: Boolean     = false
-  var callback: V => Unit = { _ => () }
+  var callback: V => Unit = _ => ()
 
-  def update(): Unit = {
-    val deltaSeconds = (1.0 / 120.0) * speed
+  def update(deltaSeconds0: Double): Unit =
+//    val deltaSeconds = (1.0 / 60.0) * speed
+    val deltaSeconds = deltaSeconds0 * speed
     val displacement = V.subtract(value, targetValue)
     val springForce  = V.scaledBy(displacement, -stiffness)
     val dampingForce = V.scaledBy(velocity, damping)
@@ -29,20 +30,19 @@ final class Animator[V](
     callback(value)
     isDone = V.magnitudeSquared(displacement) < epsilon &&
       V.magnitudeSquared(velocity) < epsilon
-  }
 
   def setTarget(newTarget: V): Unit =
     this.targetValue = newTarget
 
   def copy(
-    value: V = value,
-    velocity: V = velocity,
-    targetValue: V = targetValue,
-    stiffness: Double = stiffness,
-    damping: Double = damping,
-    mass: Double = mass,
-    epsilon: Double = epsilon,
-    speed: Double = speed
+      value: V = value,
+      velocity: V = velocity,
+      targetValue: V = targetValue,
+      stiffness: Double = stiffness,
+      damping: Double = damping,
+      mass: Double = mass,
+      epsilon: Double = epsilon,
+      speed: Double = speed
   ): Animator[V] =
     new Animator(value, velocity, targetValue, stiffness, damping, mass, epsilon, speed)
 
@@ -53,12 +53,10 @@ final class Animator[V](
   def slow: Animator[V]                     = copy(stiffness = 280, damping = 60)
   def molasses: Animator[V]                 = copy(stiffness = 280, damping = 120)
   def withSpeed(speed: Double): Animator[V] = copy(speed = speed)
-}
 
-object Animator {
+object Animator:
   def make[V](value: V)(implicit V: VectorArithmetic[V]) =
     new Animator(value = value, velocity = V.zero, targetValue = value)
 
   def make[V](value: V, target: V)(implicit V: VectorArithmetic[V]) =
     new Animator(value = value, velocity = V.zero, targetValue = target)
-}
