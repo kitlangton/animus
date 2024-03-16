@@ -75,7 +75,8 @@ lazy val commonSettings = Seq(
 lazy val root = project
   .in(file("."))
   .aggregate(
-    animusJS
+    animusJS,
+    example
 //    animusJVM
   )
   .settings(commonSettings)
