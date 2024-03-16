@@ -51,18 +51,9 @@ ThisBuild / githubWorkflowPublish := Seq(
 /////////////////////////
 
 lazy val scalacSettings =
-  "-encoding" :: "UTF-8" ::
-    "-unchecked" ::
+  "-unchecked" ::
     "-deprecation" ::
-    "-explaintypes" ::
     "-feature" ::
-    "-language:_" ::
-    "-Xfuture" ::
-    "-Xlint" ::
-    "-Ymacro-annotations" ::
-    "-Yno-adapted-args" ::
-    "-Ywarn-value-discard" ::
-    "-Ywarn-unused" ::
     Nil
 
 val zioVersion     = "2.0.21"
@@ -81,21 +72,16 @@ lazy val root = project
   )
   .settings(commonSettings)
   .settings(
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     skip / publish := true
   )
-
-testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
 lazy val animus = crossProject(JSPlatform)
   .in(file("."))
   .settings(
     commonSettings,
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     libraryDependencies += "dev.zio" %%% "zio-test" % zioVersion % Test
   )
   .jsSettings(
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     libraryDependencies ++= Seq("com.raquo" %%% "laminar" % laminarVersion)
   )
