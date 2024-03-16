@@ -12,7 +12,7 @@ object Main {
   def main(args: Array[String]): Unit =
     documentEvents(_.onDomContentLoaded).foreach { _ =>
       val container = document.getElementById("app")
-      render(container, body)
+      val _         = render(container, body)
     }(unsafeWindowOwner)
 
   def body: Div = {
@@ -56,7 +56,7 @@ object Main {
 
 object BackAndForthForeverTest extends Component {
 
-  def square(configure: SpringConfig[Double] => SpringConfig[Double]): Div = {
+  def square(configure: Animator[Double] => Animator[Double]): Div = {
     val $x: Signal[Double] =
       EventStream
         .periodic(1000)
@@ -101,7 +101,7 @@ object AnimateTest extends Component {
       windowEvents(_.onKeyDown).map(_.key.toIntOption.getOrElse(0)) --> { int =>
         numberVar.update(set => if (set(int)) set - int else set + int)
       },
-      children <-- numberVar.signal.map(_.toList).splitTransition(identity) { (_, int, $int, transition) =>
+      children <-- numberVar.signal.map(_.toList).splitTransition(identity) { (_, int, _, transition) =>
         div(
           fontWeight.bold,
           int.toString,

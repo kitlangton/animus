@@ -11,7 +11,7 @@ package object animus {
     def spring(implicit v: VectorArithmetic[A]): Signal[A] =
       new SpringSignal[A](self, identity)
 
-    def spring(configureSpring: SpringConfig[A] => SpringConfig[A])(implicit v: VectorArithmetic[A]): Signal[A] =
+    def spring(configureSpring: Animator[A] => Animator[A])(implicit v: VectorArithmetic[A]): Signal[A] =
       new SpringSignal[A](self, configureSpring)
 
     def splitOneTransition[Key, Out](key: A => Key)(project: (Key, A, Signal[A], Transition) => Out): Signal[Seq[Out]] =

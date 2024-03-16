@@ -5,7 +5,7 @@ import org.scalajs.dom.window.requestAnimationFrame
 import animus.VectorArithmetic
 
 import scala.util.Try
-import animus.SpringConfig
+import animus.Animator
 
 import scala.collection.mutable
 
@@ -13,14 +13,14 @@ import scala.collection.mutable
 
 class SpringSignal[A](
   override protected val parent: Signal[A],
-  configureSpring: SpringConfig[A] => SpringConfig[A]
+  configureSpring: Animator[A] => Animator[A]
 )(implicit
   vectorArithmetic: VectorArithmetic[A]
 ) extends Signal[A]
     with WritableSignal[A]
     with SingleParentSignal[A, A] {
 
-  private var spring: SpringConfig[A] = _
+  private var spring: Animator[A] = _
   var animationId: Int                = -1
 
   override def onStart(): Unit = {
@@ -36,7 +36,7 @@ class SpringSignal[A](
   override protected def currentValueFromParent(): Try[A] = {
     val value = parent.tryNow()
     value.foreach { a =>
-      spring = configureSpring(SpringConfig.make(a))
+      spring = configureSpring(Animator.make(a))
       spring.callback = fireQuick
     }
     value

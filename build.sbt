@@ -5,8 +5,8 @@ inThisBuild(
     name               := "animus",
     normalizedName     := "animus",
     organization       := "com.kitlangton",
-    scalaVersion       := "2.13.13",
-    crossScalaVersions := Seq("2.13.13", "3.3.3"),
+    scalaVersion       := "3.3.3",
+    crossScalaVersions := Seq("3.3.3"),
     organization       := "io.github.kitlangton",
     homepage           := Some(url("https://github.com/kitlangton/animus")),
     licenses           := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -21,7 +21,7 @@ inThisBuild(
   )
 )
 
-val baseScalacSettings =
+lazy val scalacSettings =
   "-encoding" :: "UTF-8" ::
     "-unchecked" ::
     "-deprecation" ::
@@ -36,24 +36,12 @@ val baseScalacSettings =
     "-Ywarn-unused" ::
     Nil
 
-lazy val scalacSettings = Seq(
-  scalacOptions ++= {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) =>
-        baseScalacSettings.diff(
-          "-Xfuture" ::
-            "-Yno-adapted-args" ::
-            "-Ywarn-infer-any" ::
-            "-Ywarn-nullary-override" ::
-            "-Ywarn-nullary-unit" ::
-            Nil
-        )
-      case _ => baseScalacSettings
-    }
-  }
-)
+val zioVersion     = "2.0.21"
+val laminarVersion = "16.0.0"
 
-lazy val commonSettings = scalacSettings
+lazy val commonSettings = Seq(
+  scalacOptions ++= scalacSettings
+)
 
 lazy val root = project
   .in(file("."))
@@ -63,11 +51,6 @@ lazy val root = project
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     skip / publish := true
   )
-
-val zioVersion       = "2.0.21"
-val laminarVersion   = "16.0.0"
-val magnolia2Version = "1.1.8"
-val magnolia3Version = "1.3.0"
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
@@ -81,19 +64,7 @@ lazy val animus = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-    libraryDependencies ++= Seq(
-      "com.raquo" %%% "laminar" % laminarVersion
-    ) ++ {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _)) =>
-          Seq("com.softwaremill.magnolia1_3" %%% "magnolia" % magnolia3Version)
-        case _ =>
-          Seq(
-            "com.softwaremill.magnolia1_2" %%% "magnolia"      % magnolia2Version,
-            scalaOrganization.value          % "scala-reflect" % scalaVersion.value
-          )
-      }
-    }
+    libraryDependencies ++= Seq("com.raquo" %%% "laminar" % laminarVersion)
   )
 
 lazy val animusJS  = animus.js

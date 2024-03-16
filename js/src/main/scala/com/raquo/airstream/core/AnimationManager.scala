@@ -1,42 +1,44 @@
 package com.raquo.airstream.core
 
-import animus.SpringConfig
+import animus.Animator
 import org.scalajs.dom.window.requestAnimationFrame
 
 object AnimationManager {
-  var animating = false
-
-  var animationId: Int = 0
-  def nextAnimationId(): Int = {
+  private val animations       = scalajs.js.Map.empty[Int, Animator[_]]
+  private var animating        = false
+  private var animationId: Int = 0
+  private def nextAnimationId(): Int = {
     animationId += 1
     animationId
   }
 
-  val animations = scalajs.js.Map.empty[Int, SpringConfig[_]]
-
-  def addAnimation[V](spring: SpringConfig[V]): Int = {
+  def addAnimation[V](spring: Animator[V]): Int = {
     val id = nextAnimationId()
     animations += (id -> spring)
     if (!animating) {
       animating = true
-      requestAnimationFrame(tick)
+      val _ = requestAnimationFrame(tick(_))
     }
     id
   }
 
-  def removeAnimation(id: Int): Unit =
-    animations.delete(id)
+  def removeAnimation(id: Int): Unit = {
+    val _ = animations.delete(id)
+  }
 
-  private def tick(t: Double): Unit = {
+  val tick: scalajs.js.Function1[Double, Unit] = _ => {
     animations.foreach { case (id, spring) =>
-      spring.update(t)
+      spring.update()
       if (spring.isDone) {
-        animations.delete(id)
+        val _ = animations.delete(id)
       }
     }
-    // Continue requesting frames or stop if no animations are left
-    if (animations.nonEmpty) requestAnimationFrame(tick)
-    else animating = false
+
+    if (animations.nonEmpty) {
+      val _ = requestAnimationFrame(tick(_))
+    } else {
+      animating = false
+    }
   }
 
 }
