@@ -30,12 +30,35 @@ object Transitions:
     L.opacity <-- $visible.map(if _ then 1.0 else 0).spring
 
   def height($open: Signal[Boolean]): Mod[HtmlElement] =
+    val scrollHeightVar = Var(0.0)
     Seq(
       overflowY.hidden,
+      onMountBind { ctx =>
+        ResizeObserver --> { _ =>
+          scrollHeightVar.set(ctx.thisNode.ref.scrollHeight.toDouble)
+        }
+      },
       onMountBind { (el: MountContext[HtmlElement]) =>
-        L.maxHeight <-- $open.map {
-          if _ then el.thisNode.ref.scrollHeight.toDouble
-          else 0.0
+        L.maxHeight <-- $open.flatMap {
+          if _ then scrollHeightVar.signal
+          else Val(0.0)
+        }.spring.px
+      }
+    )
+
+  def width($open: Signal[Boolean]): Mod[HtmlElement] =
+    val scrollWidthVar = Var(0.0)
+    Seq(
+      overflowX.hidden,
+      onMountBind { ctx =>
+        ResizeObserver --> { _ =>
+          scrollWidthVar.set(ctx.thisNode.ref.scrollWidth.toDouble)
+        }
+      },
+      onMountBind { (ctx: MountContext[HtmlElement]) =>
+        L.maxWidth <-- $open.flatMap {
+          if _ then scrollWidthVar.signal
+          else Val(0.0)
         }.spring.px
       }
     )
@@ -44,51 +67,6 @@ object Transitions:
     styleProp("filter") <-- $open.map(if _ then 0.0 else 5.0).spring.map { blur =>
       s"blur(${blur}px)"
     }
-
-  def width($open: Signal[Boolean]): Mod[HtmlElement] =
-    Seq(
-      overflowX.hidden,
-      onMountBind { (el: MountContext[HtmlElement]) =>
-        L.maxWidth <-- $open.map { open =>
-          val width =
-            if open then el.thisNode.ref.scrollWidth.toDouble
-            else 0.0
-          println(s"OPEN: ${open} WIDTH: ${width}")
-          width
-        }.spring.px
-
-      }
-    )
-
-  def heightDynamic($isVisible: Signal[Boolean]): Mod[HtmlElement] = Seq(
-    overflowY.hidden,
-    onMountBind { (el: MountContext[HtmlElement]) =>
-      lazy val $height = ResizeObserver
-        .resize(el.thisNode.ref.firstElementChild)
-        .mapTo(el.thisNode.ref.scrollHeight.toDouble)
-        .toSignal(0.0)
-
-      maxHeight <-- $isVisible.flatMap { b =>
-        if b then $height
-        else Val(0.0)
-      }.spring.px
-    }
-  )
-
-  def widthDynamic($isVisible: Signal[Boolean]): Mod[HtmlElement] = Seq(
-    overflowX.hidden,
-    onMountBind { (el: MountContext[HtmlElement]) =>
-      lazy val $width = ResizeObserver
-        .resize(el.thisNode.ref.firstElementChild)
-        .mapTo(el.thisNode.ref.scrollWidth.toDouble)
-        .toSignal(0.0)
-
-      maxWidth <-- $isVisible.flatMap { b =>
-        if b then $width
-        else Val(0.0)
-      }.spring.px
-    }
-  )
 
   def transitionList[A, Key, Output](
       $items: Signal[Seq[A]]

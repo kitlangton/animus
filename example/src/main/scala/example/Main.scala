@@ -12,60 +12,6 @@ def periodic[A](min: Int, max: Int, value: => A): Signal[A] =
     false
   ).startWith(value)
 
-final case class Origin(
-    x: Double,
-    y: Double
-) derives VectorArithmetic
-
-final case class Rect(
-    origin: Origin,
-    width: Double,
-    height: Double,
-    red: Double = scala.util.Random.nextDouble(),
-    green: Double = scala.util.Random.nextDouble(),
-    blue: Double = scala.util.Random.nextDouble()
-
-//    rotation: Double = 0
-) derives VectorArithmetic:
-  def x: Double = origin.x
-  def y: Double = origin.y
-
-final case class RectView(
-    styles: String = "bg-red-600"
-) extends View:
-  def windowWidth = org.scalajs.dom.window.innerHeight
-
-  def randomRect = Rect(
-    Origin(0, 0),
-    10,
-//    scala.util.Random.nextDouble() * 80,
-    scala.util.Random.nextDouble() * windowWidth
-    // 0 // scala.util.Random.nextDouble() * 30 - 15
-  )
-
-  val rectSignal = periodic(500, 1000, randomRect).spring
-
-  def body =
-    div(
-      top <-- rectSignal.map(_.y).px,
-      left <-- rectSignal.map(_.x).px,
-      width <-- rectSignal.map(_.width).px,
-      height <-- rectSignal.map(_.height).px,
-      background <-- rectSignal.map { r =>
-        s"rgb(${r.red * 255},${r.red * 255},${r.red * 255})"
-      },
-      opacity(0.15)
-//      transform <-- rectSignal.map { r =>
-//        s"rotate(${r.rotation}deg)"
-//      }
-    )
-
-trait View:
-  def body: HtmlElement
-
-object View:
-  given Conversion[View, HtmlElement] = _.body
-
 object Main:
   def main(args: Array[String]): Unit =
     documentEvents(_.onDomContentLoaded).foreach { _ =>
@@ -91,54 +37,198 @@ object Main:
     .toSignal(0.0)
 
   val animusText = div(
-    cls("flex"),
+    cls(
+      "flex text-6xl tracking-widest"
+    ),
+    fontFamily("Bebas Neue"),
     List("A", "N", "I", "M", "U", "S").map { letter =>
       div(
         cls("text-6xl relative"),
+        fontSize("80px"),
         letter,
         top <-- wobble.px,
         left <-- wobble.px,
         styleProp("filter") <-- wobble.spring.map { w =>
           s"blur(${w}px)"
+        },
+        transform <-- wobble.spring.map { w =>
+          s"rotate(${w * 5 - 5}deg)"
         }
+      )
+    }
+  )
+
+  final case class Todo(title: String)
+
+  val todos = Vector(
+    Todo("Learn Scala 3"),
+    Todo("Learn Laminar"),
+    Todo("Learn Animus"),
+    Todo("Build something cool"),
+    Todo("Profit!"),
+    Todo("Question the morality of your success"),
+    Todo("Donate all your profits in a fit of guilt"),
+    Todo("Start a new project in search of purpose and redemption"),
+    Todo("Fail repeatedly, questioning your competence"),
+    Todo("Descend into isolation and existential crisis"),
+    Todo("Reread 'Notes from Underground', find frightening parallels"),
+    Todo("Attempt to connect with others but fail due to technology alienation"),
+    Todo("Fall into a pit of despair"),
+    Todo("Encounter a stranger who challenges your perspective"),
+    Todo("Engage in philosophical debates with the stranger"),
+    Todo("Become absorbed in the works of Nietzsche"),
+    Todo("Decide to write a manifesto"),
+    Todo("Lose yourself in the process, alienating friends and family"),
+    Todo("Eventually finish and publish the manifesto"),
+    Todo("It is met with heavy criticism and misunderstanding"),
+    Todo("Feel crushed and spiraling deeper into solitude"),
+    Todo("Attempt to find comfort in stoicism"),
+    Todo("Only find more questions, not answers"),
+    Todo("Confront your mortality and the impermanence of all things"),
+    Todo("Decide to reinvent yourself and re-learn compassion"),
+    Todo("Stumble upon an old machine you'd created"),
+    Todo("Discard it, reflecting on the naivety of your past ambitions"),
+    Todo("Volunteer at a local shelter in search of humility"),
+    Todo("Conduct philosophical talks at the shelter"),
+    Todo("Slowly start to regain faith in humanity"),
+    Todo("Write a book about your transformation"),
+    Todo("Your book touches many people, becomes a success"),
+    Todo("Feel a sense of satisfaction but also emptiness"),
+    Todo("Realize you still have lots to learn"),
+    Todo("Commit to lifelong learning"),
+    Todo("Inspire others with your journey"),
+    Todo("Reflect on the futility of ambition"),
+    Todo("Accept the fluidity and ambiguity of life"),
+    Todo("Find peace in solitude and simplicity"),
+    Todo("Live out your days quietly, introspectively"),
+    Todo("Pass on, leaving behind a complex legacy"),
+    Todo("Silence"),
+    Todo("Silence"),
+    Todo("Silence"),
+    Todo("The horrid buzzing af a colossal, metallic wasp"),
+    Todo("SCREAMING ENDLESS SCREAMING"),
+    Todo("Transition into the ethereal, leaving earthly existence behind"),
+    Todo("Experience the sensation of floating in a vast, tranquil emptiness"),
+    Todo("Realize consciousness still persists, even in the void"),
+    Todo("Recognize the void itself is an embodiment of your consciousness"),
+    Todo("Start to perceive a faint shimmer in the distance"),
+    Todo("Move towards it, feeling an inexplicable pull"),
+    Todo("Emerge in a new world, reincarnated as a curious child"),
+    Todo("Experience a life filled with learning and exploration"),
+    Todo("Develop an interest in computers and technology"),
+    Todo("Stumble upon an old book about programming in your teens"),
+    Todo("Intrigued, you spend countless hours studying it"),
+    Todo("Discover the power of creating and manipulating software"),
+    Todo("Specialize in computer science, focusing on programming languages"),
+    Todo("Start from the basics - 'Hello World' in Python"),
+    Todo("Gradually move on to more complex tasks"),
+    Todo("Descend into the world of Java, understanding OOP"),
+    Todo("Eventually, you come across a peculiar language - Scala"),
+    Todo("Dive deep into Scala 2, mesmerized by its elegance and power"),
+    Todo("As your understanding grows, you prepare to take on a new challenge"),
+    Todo("And so begins your journey to Learn Scala 3")
+  )
+
+  // start at the given index, then take the next 3 elements, rotating back to the start
+  def rotate[A](start: Int, take: Int, as: Vector[A]): Vector[A] =
+    val size = as.size
+    val i    = start      % size
+    val j    = (i + take) % size
+    if j < i then as.slice(i, size) ++ as.slice(0, j)
+    else as.slice(i, j)
+
+  val todosSignal =
+    EventStream
+      .periodic(1000)
+      .toSignal(0)
+      .map(rotate(_, 3, todos))
+      .map(_.zipWithIndex)
+
+  val colors = List("text-neutral-200", "text-neutral-400", "text-neutral-600")
+
+  def todosView = div(
+    cls("flex flex-col mt-32 text-3xl tracking-widest"),
+    fontFamily("Bebas Neue"),
+    children <-- todosSignal.splitTransition(_._1) { (_, value, signal, t) =>
+      div(
+        cls("transition-colors duration-300"),
+        cls <-- signal.map { value =>
+          colors(value._2 % colors.size)
+        },
+        div(
+          cls("flex space-x-2 py-2 "),
+          div(
+            cls("flex-wrap flex  space-x-2"),
+            transformOrigin("left"),
+            transform <-- signal
+              .map { value =>
+                value._2 match
+                  case 0 => 1.0
+                  case 1 => 0.9
+                  case _ => 0.8
+              }
+              .spring
+              .map { s =>
+                s"scale(${s})"
+              },
+            styleProp("filter") <-- signal
+              .map { value =>
+                value._2 match
+                  case 0 => 0.0
+                  case 1 => 0.5
+                  case _ => 1
+              }
+              .spring
+              .map { s =>
+                s"blur(${s}px)"
+              },
+            value._1.title.split(" ").map { word =>
+              div(
+                word,
+                cls("relative"),
+                top <-- wobble.px,
+                left <-- wobble.px,
+                transform <-- wobble.spring.map(w => s"rotate(${w * 3 - 3}deg)")
+              )
+            }
+          )
+        ),
+        t.opacity,
+        t.height,
+        t.blur
       )
     }
   )
 
   def body =
     div(
-      cls("bg-neutral-900"),
+      fontFamily("Playfair Display"),
+      cls("z-10 relative font-bold text-neutral-100 h-screen flex flex-col"),
+      cls("tracking-wider flex-col p-14 sm:p-24 overflow-x-hidden"),
+      animusText,
       div(
-        cls("z-10 relative font-bold overflow-hidden text-6xl text-neutral-100 h-screen flex flex-col"),
-        cls("tracking-wider flex-col p-4 sm:p-24"),
-        animusText,
+        cls("text-lg mt-4 items-center max-w-lg italic"),
         div(
-          cls("text-lg mt-4 items-center max-w-lg"),
-          div(
-            cls("items-center flex flex-wrap"),
-            "is a",
-            children <-- article.splitOneTransition(identity) { (_, string, _, t) =>
-              div(
-                string,
-                t.width
-              )
-            },
-            adjectiveOne.body,
-            div(s"and"),
-            AdjectiveView().body
-          ),
-          div(s"spring animation library for Scala.js.")
-        )
-      ),
-      div(
-        cls("w-full flex justify-center items-center"),
-        cls("fixed inset-0"),
-        transform := "translateZ(0)",
-        List.fill(200)(
-          RectView("bg-neutral-800")
-        )
+          cls("items-center flex whitespace-nowrap"),
+          "is a",
+          children <-- article.splitOneTransition(identity) { (_, string, _, t) =>
+            div(
+              string,
+              t.width
+            )
+          },
+          adjectiveOne.body,
+          div(s"and"),
+          AdjectiveView().body
+        ),
+        div(s"spring animation library for Scala.js.")
       )
+//      todosView
     )
+
+  ////////////////
+  // ADJECTIVES //
+  ////////////////
 
   lazy val adjectives = Array(
     "aesthetic",
@@ -185,9 +275,13 @@ object Main:
 
     def body =
       div(
-        cls(s"flex flex-col my-[8px] mx-2 overflow-hidden"),
+        cls(s"flex flex-col my-[8px] mx-2 overflow-hidden not-italic"),
+        // skew
+        transform("skewX(-15deg)"),
+        fontFamily("Bebas Neue"),
+        fontSize("24px"),
         div(
-          cls("flex whitespace-nowrap text-neutral-900 bg-neutral-300 px-2"),
+          cls("flex whitespace-nowrap text-neutral-900 bg-neutral-300 px-1.5 py-1 relative top-1"),
           children <-- adjective.splitOneTransition(identity) { (_, string, _, t) =>
             div(
               string,
