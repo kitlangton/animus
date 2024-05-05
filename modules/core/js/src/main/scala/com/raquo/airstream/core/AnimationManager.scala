@@ -7,6 +7,7 @@ object AnimationManager:
   private val animations       = scalajs.js.Map.empty[Int, Animator[_]]
   private var animating        = false
   private var animationId: Int = 0
+  
   private def nextAnimationId(): Int =
     animationId += 1
     animationId

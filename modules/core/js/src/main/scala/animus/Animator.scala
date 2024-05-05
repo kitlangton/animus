@@ -10,12 +10,11 @@ final class Animator[V](
     val epsilon: Double = 0.001,
     val speed: Double = 1
 )(implicit V: VectorArithmetic[V]):
-
-  var isDone: Boolean     = false
-  var callback: V => Unit = _ => ()
+  var isDone: Boolean        = false
+  var onChange: V => Unit    = _ => ()
+  var onComplete: () => Unit = () => ()
 
   def update(deltaSeconds0: Double): Unit =
-//    val deltaSeconds = (1.0 / 60.0) * speed
     val deltaSeconds = deltaSeconds0 * speed
     val displacement = V.subtract(value, targetValue)
     val springForce  = V.scaledBy(displacement, -stiffness)
@@ -26,10 +25,12 @@ final class Animator[V](
     velocity = V.add(velocity, V.scaledBy(acceleration, deltaSeconds))
     value = V.add(value, V.scaledBy(velocity, deltaSeconds))
 
-    // Return true if the animation is "settled"
-    callback(value)
-    isDone = V.magnitudeSquared(displacement) < epsilon &&
+    onChange(value)
+    if V.magnitudeSquared(displacement) < epsilon &&
       V.magnitudeSquared(velocity) < epsilon
+    then
+      isDone = true
+      onComplete()
 
   def setTarget(newTarget: V): Unit =
     this.targetValue = newTarget
@@ -49,6 +50,7 @@ final class Animator[V](
   def default: Animator[V]                  = copy(stiffness = 170, damping = 26)
   def gentle: Animator[V]                   = copy(stiffness = 120, damping = 14)
   def wobbly: Animator[V]                   = copy(stiffness = 180, damping = 12)
+  def bouncy: Animator[V]                   = copy(stiffness = 280, damping = 25)
   def stiff: Animator[V]                    = copy(stiffness = 210, damping = 20)
   def slow: Animator[V]                     = copy(stiffness = 280, damping = 60)
   def molasses: Animator[V]                 = copy(stiffness = 280, damping = 120)

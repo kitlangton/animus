@@ -41,15 +41,13 @@ class TransitioningSignal[Input, Output, Key](
 
   def refireMemoized(): Unit = fireValue(ordered.toList.map(memoized(_)._1), null)
 
-  var transitionSet: TransitionSet[Input, Input] = TransitionSet.empty[Input]
-
   private[this] def memoizedProject(nextInputs: Seq[Input], first: Boolean = false): Seq[Output] =
-    val nextKeysDict = mutable.HashSet.empty[Key] // HashSet has desirable performance tradeoffs
+    val nextKeys = mutable.HashSet.empty[Key] // HashSet has desirable performance tradeoffs
 
     val nextOutputs = nextInputs.map { input =>
       val key = getKey(input)
       activeKeys.add(key)
-      nextKeysDict.add(key)
+      nextKeys.add(key)
 
       memoized.get(key) match
         case Some((output, inputVar, statusVar)) =>
@@ -73,7 +71,7 @@ class TransitioningSignal[Input, Output, Key](
 
     ordered.addValues(nextOutputs.map(_._1))
 
-    val removing = activeKeys.toSet -- nextKeysDict
+    val removing = activeKeys.toSet -- nextKeys
 
     removing.foreach { key =>
       activeKeys.remove(key)
@@ -87,3 +85,5 @@ class TransitioningSignal[Input, Output, Key](
     }
 
     ordered.toList.map(memoized(_)._1)
+  end memoizedProject
+end TransitioningSignal

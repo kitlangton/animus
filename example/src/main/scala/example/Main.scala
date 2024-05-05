@@ -209,10 +209,11 @@ object Main:
       div(
         cls("text-lg mt-4 items-center max-w-lg italic"),
         div(
-          cls("items-center flex whitespace-nowrap"),
+          cls("items-center flex whitespace-nowrap overflow-hidden"),
           "is a",
           children <-- article.splitOneTransition(identity) { (_, string, _, t) =>
             div(
+              cls("overflow-hidden"),
               string,
               t.width
             )
@@ -281,9 +282,10 @@ object Main:
         fontFamily("Bebas Neue"),
         fontSize("24px"),
         div(
-          cls("flex whitespace-nowrap text-neutral-900 bg-neutral-300 px-1.5 py-1 relative top-1"),
+          cls("flex whitespace-nowrap text-neutral-900 bg-neutral-300 px-1.5 py-1 relative top-1 overflow-hidden"),
           children <-- adjective.splitOneTransition(identity) { (_, string, _, t) =>
             div(
+              cls("overflow-hidden"),
               string,
               t.width,
               t.opacity,

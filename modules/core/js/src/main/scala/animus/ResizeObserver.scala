@@ -30,13 +30,11 @@ class ResizeListener(callback: DOMRect => Unit) extends Binder[ReactiveElement.B
     })
 
     val subscribe = (ctx: MountContext[ReactiveElement.Base]) =>
-      println("SUBSCRIBE")
       observer.observe(element.ref)
+      callback(ctx.thisNode.ref.getBoundingClientRect())
       new Subscription(
         ctx.owner,
-        cleanup = () =>
-          println("CLEANUP")
-          observer.unobserve(element.ref)
+        cleanup = () => observer.unobserve(element.ref)
       )
 
     ReactiveElement.bindSubscriptionUnsafe(element)(subscribe)

@@ -33,7 +33,7 @@ class SpringSignal[A](
     val value = parent.tryNow()
     value.foreach { a =>
       spring = configureSpring(Animator.make(a))
-      spring.callback = fireQuick
+      spring.onChange = fireQuick
     }
     value
 

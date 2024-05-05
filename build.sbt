@@ -1,3 +1,4 @@
+import org.scalajs.linker.interface.ModuleSplitStyle
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 inThisBuild(
@@ -86,7 +87,10 @@ lazy val animus = crossProject(JSPlatform)
     )
   )
   .jsSettings(
-    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("animus")))
+    },
     libraryDependencies ++= Seq("com.raquo" %%% "laminar" % laminarVersion)
   )
 
@@ -99,7 +103,10 @@ lazy val example = project
   .settings(commonSettings)
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("example")))
+    },
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,

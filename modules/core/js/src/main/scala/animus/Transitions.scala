@@ -8,7 +8,7 @@ import com.raquo.laminar.api.L
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
-import scala.scalajs.js.timers.SetTimeoutHandle
+import scala.scalajs.js.timers.{SetTimeoutHandle, setTimeout}
 
 case class Transition(signal: Signal[TransitionStatus]):
   lazy val $isActive: Signal[Boolean] = signal.map(_.isActive)
@@ -19,54 +19,128 @@ case class Transition(signal: Signal[TransitionStatus]):
   lazy val width: Mod[HtmlElement] =
     Transitions.width($isActive)
 
+  def width(speed: Double): Mod[HtmlElement] =
+    Transitions.width($isActive, speed)
+
   lazy val height: Mod[HtmlElement] =
     Transitions.height($isActive)
 
+  def height(speed: Double): Mod[HtmlElement] =
+    Transitions.height($isActive, speed)
+
   lazy val blur: Mod[HtmlElement] =
     Transitions.blur($isActive)
+
+  def blur(closedBlur: Double): Mod[HtmlElement] =
+    Transitions.blur($isActive, closedBlur)
+
+  lazy val scale: Mod[HtmlElement] =
+    Transitions.scale($isActive)
+
+  def scale(closedScale: Double, speed: Double = 1): Mod[HtmlElement] =
+    Transitions.scale($isActive, closedScale, speed)
+
+  def offset(closedX: Double = 0, closedY: Double = 0): Mod[HtmlElement] =
+    Transitions.offset($isActive, closedX, closedY)
 
 object Transitions:
   def opacity($visible: Signal[Boolean]): Mod[HtmlElement] =
     L.opacity <-- $visible.map(if _ then 1.0 else 0).spring
 
-  def height($open: Signal[Boolean]): Mod[HtmlElement] =
+  enum Status:
+    case Inserting, Active, Removing
+
+  def height($open: Signal[Boolean], speed: Double = 1): Mod[HtmlElement] =
     val scrollHeightVar = Var(0.0)
+
+    val $scrollHeight = $open.distinct
+      .flatMap {
+        if _ then scrollHeightVar.signal
+        else Val(0.0)
+      }
+      .spring(_.withSpeed(speed))
+      .px
+
+    val signalVar                          = Var($scrollHeight)
+    var setTimeoutHandle: SetTimeoutHandle = null
+
     Seq(
       overflowY.hidden,
       onMountBind { ctx =>
-        ResizeObserver --> { _ =>
+        EventStream.periodic(10) --> { _ =>
           scrollHeightVar.set(ctx.thisNode.ref.scrollHeight.toDouble)
         }
       },
-      onMountBind { (el: MountContext[HtmlElement]) =>
-        L.maxHeight <-- $open.flatMap {
-          if _ then scrollHeightVar.signal
-          else Val(0.0)
-        }.spring.px
-      }
+      onMountBind { ctx =>
+        $open.distinct --> { open =>
+          if setTimeoutHandle != null then js.timers.clearTimeout(setTimeoutHandle)
+          if open then
+            signalVar.set($scrollHeight)
+            setTimeoutHandle = setTimeout(700) {
+              signalVar.set(Val("none"))
+            }
+          else signalVar.set($scrollHeight)
+        }
+      },
+      $scrollHeight --> { _ => () },
+      maxHeight <-- signalVar.signal.flatten
     )
 
-  def width($open: Signal[Boolean]): Mod[HtmlElement] =
+  def width($open: Signal[Boolean], speed: Double = 1): Mod[HtmlElement] =
     val scrollWidthVar = Var(0.0)
+
+    val $scrollWidth = $open.distinct
+      .flatMap {
+        if _ then scrollWidthVar.signal
+        else Val(0.0)
+      }
+      .spring(_.withSpeed(speed))
+      .px
+
+    val signalVar                          = Var($scrollWidth)
+    var setTimeoutHandle: SetTimeoutHandle = null
+
     Seq(
-      overflowX.hidden,
+      overflowY.hidden,
       onMountBind { ctx =>
-        ResizeObserver --> { _ =>
+        EventStream.periodic(10) --> { _ =>
           scrollWidthVar.set(ctx.thisNode.ref.scrollWidth.toDouble)
         }
       },
-      onMountBind { (ctx: MountContext[HtmlElement]) =>
-        L.maxWidth <-- $open.flatMap {
-          if _ then scrollWidthVar.signal
-          else Val(0.0)
-        }.spring.px
-      }
+      onMountBind { ctx =>
+        $open.distinct --> { open =>
+          if setTimeoutHandle != null then js.timers.clearTimeout(setTimeoutHandle)
+          if open then
+            signalVar.set($scrollWidth)
+            setTimeoutHandle = setTimeout(700) {
+              signalVar.set(Val("none"))
+            }
+          else signalVar.set($scrollWidth)
+        }
+      },
+      $scrollWidth --> { _ => () },
+      maxWidth <-- signalVar.signal.flatten
     )
 
-  def blur($open: Signal[Boolean]): Mod[HtmlElement] =
-    styleProp("filter") <-- $open.map(if _ then 0.0 else 5.0).spring.map { blur =>
+  def scale($open: Signal[Boolean], closedScale: Double = 0.0, speed: Double = 1): Mod[HtmlElement] =
+    List(
+      styleProp("transform") <-- $open.map(if _ then 1.0 else closedScale).spring(_.withSpeed(speed)).map { scale =>
+        s"scale($scale)"
+      },
+      transformOrigin("top left")
+    )
+
+  def blur($open: Signal[Boolean], closedBlur: Double = 5.0): Mod[HtmlElement] =
+    styleProp("filter") <-- $open.map(if _ then 0.0 else closedBlur).spring(_.withSpeed(0.8)).map { blur =>
       s"blur(${blur}px)"
     }
+
+  def offset($open: Signal[Boolean], closedX: Double = 0.0, closedY: Double = 0.0): Mod[HtmlElement] =
+    List(
+      position.relative,
+      top <-- $open.map(if _ then 0.0 else closedY).spring.px,
+      left <-- $open.map(if _ then 0.0 else closedX).spring.px
+    )
 
   def transitionList[A, Key, Output](
       $items: Signal[Seq[A]]
