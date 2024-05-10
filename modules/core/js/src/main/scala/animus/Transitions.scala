@@ -54,7 +54,7 @@ object Transitions:
     val scrollHeightVar = Var(0.0)
 
     val $scrollHeight = $open.distinct
-      .flatMap {
+      .flatMapSwitch {
         if _ then scrollHeightVar.signal
         else Val(0.0)
       }
@@ -83,14 +83,14 @@ object Transitions:
         }
       },
       $scrollHeight --> { _ => () },
-      maxHeight <-- signalVar.signal.flatten
+      maxHeight <-- signalVar.signal.flattenSwitch
     )
 
   def width($open: Signal[Boolean], speed: Double = 1): Mod[HtmlElement] =
     val scrollWidthVar = Var(0.0)
 
     val $scrollWidth = $open.distinct
-      .flatMap {
+      .flatMapSwitch {
         if _ then scrollWidthVar.signal
         else Val(0.0)
       }
@@ -119,7 +119,7 @@ object Transitions:
         }
       },
       $scrollWidth --> { _ => () },
-      maxWidth <-- signalVar.signal.flatten
+      maxWidth <-- signalVar.signal.flattenSwitch
     )
 
   def scale($open: Signal[Boolean], closedScale: Double = 0.0, speed: Double = 1): Mod[HtmlElement] =
@@ -212,7 +212,7 @@ object Transitions:
       xs
     }
 
-    $adding.flatMap(_ =>
+    $adding.flatMapSwitch(_ =>
       $values.map { values =>
         ordering.toList.flatMap(key => values.get(key))
       }

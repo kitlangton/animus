@@ -18,7 +18,7 @@ class SpringSignal[A](
     with WritableSignal[A]
     with SingleParentSignal[A, A]:
 
-  private var spring: Animator[A] = _
+  private var spring: Animator[A] = scala.compiletime.uninitialized
   var animationId: Int            = -1
 
   override def onStart(): Unit =

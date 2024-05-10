@@ -1,9 +1,9 @@
 package example
 
-import com.raquo.laminar.api.L._
-import animus._
+import com.raquo.laminar.api.L.*
+import animus.*
 
-object AnimatedTitle extends Component {
+object AnimatedTitle extends Component:
   val activeVar = Var(true)
 
   val $time: Signal[Double] =
@@ -19,8 +19,8 @@ object AnimatedTitle extends Component {
       val $opacity = $time.map(i => (Math.sin((i + idx * 15) / 30.0) / -2) + 1)
 
       def activate(signal: Signal[Double], default: Double): Signal[Double] =
-        activeVar.signal.flatMap { active =>
-          if (active) signal
+        activeVar.signal.flatMapSwitch { active =>
+          if active then signal
           else Val(default)
         }.spring
 
@@ -34,4 +34,3 @@ object AnimatedTitle extends Component {
       )
     }
   )
-}

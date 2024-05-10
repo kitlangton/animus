@@ -4,7 +4,7 @@ import animus.Animator
 import org.scalajs.dom.window.requestAnimationFrame
 
 object AnimationManager:
-  private val animations       = scalajs.js.Map.empty[Int, Animator[_]]
+  private val animations       = scalajs.js.Map.empty[Int, Animator[?]]
   private var animating        = false
   private var animationId: Int = 0
   

@@ -9,7 +9,7 @@ import scala.scalajs.js.timers.{SetTimeoutHandle, clearTimeout, setTimeout}
 import scala.util.Try
 
 class TransitioningSignal[Input, Output, Key](
-    override protected[this] val parent: Signal[Seq[Input]],
+    override protected val parent: Signal[Seq[Input]],
     getKey: Input => Key,
     project: (Key, Input, Signal[Input], Transition) => Output
 ) extends Signal[Seq[Output]]
@@ -28,12 +28,12 @@ class TransitioningSignal[Input, Output, Key](
 
   override protected[airstream] val topoRank: Int = Protected.topoRank(parent) + 1
 
-  private[this] val timeoutHandles: mutable.Map[Key, SetTimeoutHandle]                      = mutable.Map.empty
-  private[this] val memoized: mutable.Map[Key, (Output, Var[Input], Var[TransitionStatus])] = mutable.Map.empty
-  private[this] val activeKeys: mutable.Set[Key]                                            = mutable.Set.empty
+  private val timeoutHandles: mutable.Map[Key, SetTimeoutHandle]                      = mutable.Map.empty
+  private val memoized: mutable.Map[Key, (Output, Var[Input], Var[TransitionStatus])] = mutable.Map.empty
+  private val activeKeys: mutable.Set[Key]                                            = mutable.Set.empty
 
   // Used to track the order of the values.
-  private[this] val ordered = new OrderedSet[Key](Vector.empty)
+  private val ordered = new OrderedSet[Key](Vector.empty)
 
   protected override def onStop(): Unit =
     memoized.clear()
@@ -41,7 +41,7 @@ class TransitioningSignal[Input, Output, Key](
 
   def refireMemoized(): Unit = fireValue(ordered.toList.map(memoized(_)._1), null)
 
-  private[this] def memoizedProject(nextInputs: Seq[Input], first: Boolean = false): Seq[Output] =
+  private def memoizedProject(nextInputs: Seq[Input], first: Boolean = false): Seq[Output] =
     val nextKeys = mutable.HashSet.empty[Key] // HashSet has desirable performance tradeoffs
 
     val nextOutputs = nextInputs.map { input =>

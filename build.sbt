@@ -6,7 +6,7 @@ inThisBuild(
     name               := "animus",
     normalizedName     := "animus",
     organization       := "com.kitlangton",
-    scalaVersion       := "3.3.3",
+    scalaVersion       := "3.4.1",
     crossScalaVersions := Seq("3.3.3"),
     organization       := "io.github.kitlangton",
     homepage           := Some(url("https://github.com/kitlangton/animus")),
@@ -57,8 +57,8 @@ lazy val scalacSettings =
     "-feature" ::
     Nil
 
-val zioVersion     = "2.0.21"
-val laminarVersion = "16.0.0"
+val zioVersion     = "2.1.0"
+val laminarVersion = "17.0.0"
 
 lazy val commonSettings = Seq(
   scalacOptions ++= scalacSettings
@@ -83,7 +83,7 @@ lazy val animus = crossProject(JSPlatform)
     commonSettings,
     libraryDependencies ++= Seq(
       "dev.zio"              %%% "zio-test"  % zioVersion % Test,
-      "io.github.kitlangton" %%% "quotidian" % "0.0.14"
+      "io.github.kitlangton" %%% "quotidian" % "0.0.15"
     )
   )
   .jsSettings(
