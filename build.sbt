@@ -1,13 +1,15 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
+val scala3 = "3.3.3"
+
 inThisBuild(
   List(
     name               := "animus",
     normalizedName     := "animus",
     organization       := "com.kitlangton",
-    scalaVersion       := "3.4.1",
-    crossScalaVersions := Seq("3.3.3"),
+    scalaVersion       := scala3,
+    crossScalaVersions := Seq(scala3),
     organization       := "io.github.kitlangton",
     homepage           := Some(url("https://github.com/kitlangton/animus")),
     licenses           := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -57,7 +59,7 @@ lazy val scalacSettings =
     "-feature" ::
     Nil
 
-val zioVersion     = "2.1.0"
+val zioVersion     = "2.1.2"
 val laminarVersion = "17.0.0"
 
 lazy val commonSettings = Seq(
@@ -110,7 +112,7 @@ lazy val example = project
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,
-      "dev.zio" %%% "zio-json" % "0.6.2"
+      "dev.zio" %%% "zio-json" % "0.7.0"
     )
   )
   .enablePlugins(ScalaJSPlugin)
