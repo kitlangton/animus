@@ -59,7 +59,7 @@ lazy val scalacSettings =
     "-feature" ::
     Nil
 
-val zioVersion     = "2.1.3"
+val zioVersion     = "2.1.4"
 val laminarVersion = "17.0.0"
 
 lazy val commonSettings = Seq(
