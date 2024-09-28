@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-val scala3 = "3.3.3"
+val scala3 = "3.3.4"
 
 inThisBuild(
   List(
