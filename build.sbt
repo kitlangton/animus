@@ -85,7 +85,7 @@ lazy val animus = crossProject(JSPlatform)
     commonSettings,
     libraryDependencies ++= Seq(
       "dev.zio"              %%% "zio-test"  % zioVersion % Test,
-      "io.github.kitlangton" %%% "quotidian" % "0.0.17"
+      "io.github.kitlangton" %%% "quotidian" % "0.0.18"
     )
   )
   .jsSettings(
