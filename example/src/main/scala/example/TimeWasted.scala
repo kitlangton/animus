@@ -1,11 +1,11 @@
 package example
 
-import animus._
-import com.raquo.laminar.api.L._
+import animus.*
+import com.raquo.laminar.api.L.*
 
 import scala.util.Random
 
-object TimeWasted extends Component {
+object TimeWasted extends Component:
   val $count: Signal[Int] =
     EventStream.periodic(1000).toSignal(0)
 
@@ -78,5 +78,3 @@ object TimeWasted extends Component {
       )
     )
   )
-
-}

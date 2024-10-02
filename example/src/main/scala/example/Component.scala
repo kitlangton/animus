@@ -1,13 +1,11 @@
 package example
 
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.*
 
 import scala.language.implicitConversions
 
-trait Component {
+trait Component:
   def body: HtmlElement
-}
 
-object Component {
+object Component:
   implicit def toLaminarElement(component: Component): HtmlElement = component.body
-}
