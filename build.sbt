@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-val scala3 = "3.3.3"
+val scala3 = "3.3.4"
 
 inThisBuild(
   List(
@@ -59,7 +59,7 @@ lazy val scalacSettings =
     "-feature" ::
     Nil
 
-val zioVersion     = "2.1.8"
+val zioVersion     = "2.1.13"
 val laminarVersion = "17.2.0"
 
 lazy val commonSettings = Seq(
@@ -85,7 +85,7 @@ lazy val animus = crossProject(JSPlatform)
     commonSettings,
     libraryDependencies ++= Seq(
       "dev.zio"              %%% "zio-test"  % zioVersion % Test,
-      "io.github.kitlangton" %%% "quotidian" % "0.0.17"
+      "io.github.kitlangton" %%% "quotidian" % "0.0.18"
     )
   )
   .jsSettings(
@@ -112,7 +112,7 @@ lazy val example = project
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,
-      "dev.zio" %%% "zio-json" % "0.7.2"
+      "dev.zio" %%% "zio-json" % "0.7.3"
     )
   )
   .enablePlugins(ScalaJSPlugin)
