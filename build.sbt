@@ -59,7 +59,7 @@ lazy val scalacSettings =
     "-feature" ::
     Nil
 
-val zioVersion     = "2.1.13"
+val zioVersion     = "2.1.14"
 val laminarVersion = "17.2.0"
 
 lazy val commonSettings = Seq(
@@ -112,7 +112,7 @@ lazy val example = project
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,
-      "dev.zio" %%% "zio-json" % "0.7.3"
+      "dev.zio" %%% "zio-json" % "0.7.4"
     )
   )
   .enablePlugins(ScalaJSPlugin)
