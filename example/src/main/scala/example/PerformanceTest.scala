@@ -1,11 +1,11 @@
 package example
 
 import animus.SignalOps
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.*
 
 import scala.util.Random
 
-object PerformanceTest {
+object PerformanceTest:
   val positionVar: Var[Double] = Var(0.0)
 
   def every[A](a: => A, ms: => Int = 300): Signal[A] =
@@ -15,7 +15,7 @@ object PerformanceTest {
 
   val colors = Vector("#888", "#ccc", "#ddd", "#fff")
 
-  def randomCube = {
+  def randomCube =
 
     def coord =
       ((Random.nextDouble() * 150) - 75 + mousePosition._1, (Random.nextDouble() * 150) - 75 + mousePosition._2)
@@ -30,7 +30,6 @@ object PerformanceTest {
       svg.x <-- $xyPosition.map(_._1).px,
       svg.y <-- $xyPosition.map(_._2).px
     )
-  }
 
   def body: Div =
     div(
@@ -61,4 +60,3 @@ object PerformanceTest {
 //        left <-- positionVar.signal.sprinkle.px
 //      )
     )
-}
