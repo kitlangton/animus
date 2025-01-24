@@ -1,9 +1,9 @@
 package example
 
-import animus._
-import com.raquo.laminar.api.L._
+import animus.*
+import com.raquo.laminar.api.L.*
 
-package object components {
+package object components:
   def FadeInWords(string: String, delay: Int = 0): Modifier[HtmlElement] =
     string.split(" ").zipWithIndex.toList.map { case (word, idx) =>
       val $opacity = Animation.from(0).wait(delay + 150 * idx).to(1).run
@@ -60,4 +60,3 @@ package object components {
 //      )
 //    )
 //
-}
