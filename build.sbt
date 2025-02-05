@@ -112,7 +112,7 @@ lazy val example = project
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,
-      "dev.zio" %%% "zio-json" % "0.7.4"
+      "dev.zio" %%% "zio-json" % "0.7.15"
     )
   )
   .enablePlugins(ScalaJSPlugin)
