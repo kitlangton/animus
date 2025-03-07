@@ -2,8 +2,8 @@ package animus
 
 import com.raquo.airstream.core.Signal
 import com.raquo.airstream.state.Var
-import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L
+import com.raquo.laminar.api.L.*
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

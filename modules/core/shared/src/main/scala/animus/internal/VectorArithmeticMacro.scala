@@ -1,9 +1,9 @@
 package animus.internal
 
 import animus.VectorArithmetic
+import quotidian.*
 
 import scala.quoted.*
-import quotidian.*
 
 // trait VectorArithmetic[A]:
 //  def subtract(lhs: A, rhs: A): A

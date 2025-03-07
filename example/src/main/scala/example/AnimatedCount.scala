@@ -1,7 +1,7 @@
 package example
 
-import com.raquo.laminar.api.L.*
 import animus.*
+import com.raquo.laminar.api.L.*
 
 case class AnimatedCount($count: Signal[Int]) extends Component:
   val $digits: Signal[List[(String, Int)]] =

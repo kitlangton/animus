@@ -1,13 +1,9 @@
 package com.raquo.airstream.core
 
+import animus.{Animator, VectorArithmetic}
 import com.raquo.airstream.common.SingleParentSignal
-import org.scalajs.dom.window.requestAnimationFrame
-import animus.VectorArithmetic
 
 import scala.util.Try
-import animus.Animator
-
-import scala.collection.mutable
 
 class SpringSignal[A](
     override protected val parent: Signal[A],

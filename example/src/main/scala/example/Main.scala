@@ -219,10 +219,10 @@ object Main:
             )
           },
           adjectiveOne.body,
-          div(s"and"),
+          div("and"),
           AdjectiveView().body
         ),
-        div(s"spring animation library for Scala.js.")
+        div("spring animation library for Scala.js.")
       )
 //      todosView
     )
@@ -276,7 +276,7 @@ object Main:
 
     def body =
       div(
-        cls(s"flex flex-col my-[8px] mx-2 overflow-hidden not-italic"),
+        cls("flex flex-col my-[8px] mx-2 overflow-hidden not-italic"),
         // skew
         transform("skewX(-15deg)"),
         fontFamily("Bebas Neue"),

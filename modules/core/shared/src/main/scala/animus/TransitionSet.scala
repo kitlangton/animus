@@ -1,6 +1,6 @@
 package animus
 
-import animus.TransitionStatus._
+import animus.TransitionStatus.*
 
 object TransitionSet {
   def empty[A]: TransitionSet[A, A] =

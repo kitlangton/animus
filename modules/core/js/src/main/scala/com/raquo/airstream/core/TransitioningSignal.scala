@@ -1,6 +1,6 @@
 package com.raquo.airstream.core
 
-import animus.{OrderedSet, Transition, TransitionSet, TransitionStatus}
+import animus.{OrderedSet, Transition, TransitionStatus}
 import com.raquo.airstream.common.SingleParentSignal
 import com.raquo.airstream.state.Var
 

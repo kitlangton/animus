@@ -13,6 +13,7 @@ inThisBuild(
     organization       := "io.github.kitlangton",
     homepage           := Some(url("https://github.com/kitlangton/animus")),
     licenses           := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    semanticdbEnabled  := true,
     developers := List(
       Developer(
         "kitlangton",
@@ -23,6 +24,9 @@ inThisBuild(
     )
   )
 )
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
+addCommandAlias("prepare", "scalafixAll;githubWorkflowGenerate")
 
 ////////////////////////
 // sbt-github-actions //
@@ -57,9 +61,10 @@ lazy val scalacSettings =
   "-unchecked" ::
     "-deprecation" ::
     "-feature" ::
+    "-Wunused:imports" ::
     Nil
 
-val zioVersion     = "2.1.15"
+val zioVersion     = "2.1.16"
 val laminarVersion = "17.2.0"
 
 lazy val commonSettings = Seq(
@@ -112,7 +117,7 @@ lazy val example = project
     skip / publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %%% "zio"      % zioVersion,
-      "dev.zio" %%% "zio-json" % "0.7.21"
+      "dev.zio" %%% "zio-json" % "0.7.39"
     )
   )
   .enablePlugins(ScalaJSPlugin)

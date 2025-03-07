@@ -1,7 +1,7 @@
 package example
 
-import com.raquo.laminar.api.L.*
 import animus.*
+import com.raquo.laminar.api.L.*
 
 object AnimatedTitle extends Component:
   val activeVar = Var(true)

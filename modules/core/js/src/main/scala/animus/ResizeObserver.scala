@@ -1,9 +1,6 @@
 package animus
 
-import com.raquo.airstream.core.Protected
 import com.raquo.airstream.ownership.Subscription
-import com.raquo.laminar.DomApi
-import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.lifecycle.MountContext
 import com.raquo.laminar.nodes.ReactiveElement

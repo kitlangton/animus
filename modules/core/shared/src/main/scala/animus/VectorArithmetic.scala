@@ -2,8 +2,6 @@ package animus
 
 import animus.internal.VectorArithmeticMacro
 
-import scala.scalajs.js
-
 trait VectorArithmetic[A]:
   def subtract(lhs: A, rhs: A): A
   def add(lhs: A, rhs: A): A
