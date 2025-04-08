@@ -64,7 +64,7 @@ lazy val scalacSettings =
     "-Wunused:imports" ::
     Nil
 
-val zioVersion     = "2.1.16"
+val zioVersion     = "2.1.17"
 val laminarVersion = "17.2.1"
 
 lazy val commonSettings = Seq(
