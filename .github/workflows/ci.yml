@@ -28,13 +28,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Java (zulu@8)
         if: matrix.java == 'zulu@8'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: zulu
           java-version: 8
@@ -42,7 +42,7 @@ jobs:
 
       - name: Setup Java (temurin@17)
         if: matrix.java == 'temurin@17'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
@@ -52,16 +52,16 @@ jobs:
         uses: sbt/setup-sbt@v1
 
       - name: Check that workflows are up to date
-        run: sbt '++ ${{ matrix.scala }}' githubWorkflowCheck
+        run: sbt '++ ${{ matrix.scala }}; githubWorkflowCheck'
 
       - name: Build project
-        run: sbt '++ ${{ matrix.scala }}' test
+        run: sbt '++ ${{ matrix.scala }}; test'
 
       - name: Compress target directories
-        run: tar cf targets.tar target modules/core/js/target example/target project/target
+        run: tar chf targets.tar target modules/core/js/target example/target project/target
 
       - name: Upload target directories
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: target-${{ matrix.os }}-${{ matrix.scala }}-${{ matrix.java }}
           path: targets.tar
@@ -78,13 +78,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Java (zulu@8)
         if: matrix.java == 'zulu@8'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: zulu
           java-version: 8
@@ -92,7 +92,7 @@ jobs:
 
       - name: Setup Java (temurin@17)
         if: matrix.java == 'temurin@17'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
@@ -102,7 +102,7 @@ jobs:
         uses: sbt/setup-sbt@v1
 
       - name: Download target directories (3.3.5)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: target-${{ matrix.os }}-3.3.5-${{ matrix.java }}
 
